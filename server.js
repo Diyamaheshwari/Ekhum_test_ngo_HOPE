@@ -17,9 +17,10 @@ app.use(express.urlencoded({ extended: true }));
 // Serve static frontend files from 'public' directory
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Razorpay Key Credentials
-const razorpayKeyId = process.env.RAZORPAY_KEY_ID || null;
+// Gateway & Campaign Credentials
+const razorpayKeyId = process.env.RAZORPAY_KEY_ID || 'rzp_test_TYgiRFkvuT45sT';
 const razorpayKeySecret = process.env.RAZORPAY_KEY_SECRET || null;
+const cashfreeAppId = process.env.CASHFREE_APP_ID || 'TEST11030636b10f78ed81182b583c4c63603011';
 
 let razorpayInstance = null;
 if (razorpayKeyId && razorpayKeySecret) {
@@ -28,7 +29,7 @@ if (razorpayKeyId && razorpayKeySecret) {
       key_id: razorpayKeyId,
       key_secret: razorpayKeySecret
     });
-    console.log('Razorpay Gateway initialized with LIVE/TEST Key ID:', razorpayKeyId);
+    console.log('Razorpay Gateway initialized with Key ID:', razorpayKeyId);
   } catch (err) {
     console.warn('Razorpay SDK init fallback:', err.message);
   }
@@ -37,12 +38,15 @@ if (razorpayKeyId && razorpayKeySecret) {
 // EKhum Campaign Metadata
 const EKHUM_CONFIG = {
   apiKey: process.env.EKHUM_API_KEY || 'ek_live_hopehopecamp_367634',
+  ngoMasterToken: process.env.EKHUM_NGO_MASTER_TOKEN || 'ek_live_ff965fc9baa3d65a9e474d7ebf424b61',
   campaignSlug: 'hope_hopecamp',
   ngoName: 'Hope Fund',
   urn80G: 'AAATC1234F2180G1',
   primaryGateway: 'razorpay',
   fallbackGateway: 'cashfree',
-  enableAutoFailover: true
+  enableAutoFailover: true,
+  razorpayKeyId: razorpayKeyId,
+  cashfreeAppId: cashfreeAppId
 };
 
 // Validation Helper
@@ -154,7 +158,7 @@ app.post('/api/donations/create-order', async (req, res) => {
       orderId: simulatedOrderId,
       amount: amountInPaisa,
       currency: currency,
-      key: razorpayKeyId || 'rzp_test_hope_fund',
+      key: razorpayKeyId || 'rzp_test_TYgiRFkvuT45sT',
       gateway: EKHUM_CONFIG.primaryGateway,
       fallbackGateway: EKHUM_CONFIG.fallbackGateway
     });
