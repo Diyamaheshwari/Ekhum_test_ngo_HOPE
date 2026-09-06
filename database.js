@@ -7,12 +7,11 @@ const FALLBACK_DB_PATH = path.join(__dirname, 'hope_donations_data.json');
 let db = null;
 let isNativeSqlite = false;
 
-// Attempt to load sqlite3; fallback to JSON file storage if native driver build is absent
 try {
   const sqlite3 = require('sqlite3').verbose();
   db = new sqlite3.Database(DB_PATH, (err) => {
     if (err) {
-      console.warn('SQLite initialization error, switching to File JSON store:', err.message);
+      console.warn('SQLite init error, fallback to JSON:', err.message);
       initJsonStore();
     } else {
       console.log('Connected to SQLite database at:', DB_PATH);
@@ -21,7 +20,7 @@ try {
     }
   });
 } catch (e) {
-  console.warn('sqlite3 module warning:', e.message, '- Using robust JSON file store.');
+  console.warn('sqlite3 module fallback to JSON file store:', e.message);
   initJsonStore();
 }
 
@@ -30,15 +29,49 @@ function initSqliteSchema() {
     CREATE TABLE IF NOT EXISTS donations (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       donation_id TEXT UNIQUE NOT NULL,
+      api_key TEXT DEFAULT 'ek_live_hopehopecamp_367634',
+      campaign_slug TEXT DEFAULT 'hope_hopecamp',
+      beneficiary_ngo TEXT DEFAULT 'Hope Fund',
+      urn_80g TEXT DEFAULT 'AAATC1234F2180G1',
+      title TEXT DEFAULT 'Mr.',
+      first_name TEXT,
+      last_name TEXT,
       donor_name TEXT NOT NULL,
       email TEXT NOT NULL,
       phone TEXT NOT NULL,
+      alt_phone TEXT,
+      tax_id TEXT NOT NULL,
+      dob TEXT,
+      gender TEXT DEFAULT 'Male',
+      donor_type TEXT DEFAULT 'Individual',
+      citizenship TEXT DEFAULT 'Indian',
       address TEXT NOT NULL,
-      age INTEGER NOT NULL,
-      pan_number TEXT NOT NULL,
+      street_address_2 TEXT,
+      pincode TEXT,
+      city TEXT,
+      state TEXT,
+      country TEXT DEFAULT 'India',
+      is_80g_requested INTEGER DEFAULT 1,
+      pan_holder_name TEXT,
+      certificate_language TEXT DEFAULT 'en',
+      is_anonymous INTEGER DEFAULT 0,
+      consent_email INTEGER DEFAULT 1,
+      consent_whatsapp INTEGER DEFAULT 1,
+      consent_sms INTEGER DEFAULT 1,
+      preferred_channel TEXT DEFAULT 'both',
+      utm_source TEXT,
+      utm_medium TEXT,
+      utm_campaign TEXT,
+      fundraiser_id TEXT,
+      volunteer_code TEXT,
+      comments TEXT,
+      custom_form_data TEXT,
       amount REAL NOT NULL,
       currency TEXT DEFAULT 'INR',
+      is_monthly INTEGER DEFAULT 0,
       cause TEXT NOT NULL,
+      gateway TEXT DEFAULT 'razorpay',
+      fallback_gateway TEXT DEFAULT 'cashfree',
       payment_id TEXT,
       order_id TEXT,
       signature TEXT,
@@ -48,8 +81,8 @@ function initSqliteSchema() {
     );
   `;
   db.run(query, (err) => {
-    if (err) console.error('Error creating SQLite schema:', err);
-    else console.log('SQLite Schema initialized successfully.');
+    if (err) console.error('Error initializing SQLite schema:', err);
+    else console.log('SQLite EKhum Hope Fund Schema initialized.');
   });
 }
 
@@ -61,8 +94,7 @@ function initJsonStore() {
 
 function getJsonData() {
   try {
-    const raw = fs.readFileSync(FALLBACK_DB_PATH, 'utf8');
-    return JSON.parse(raw || '[]');
+    return JSON.parse(fs.readFileSync(FALLBACK_DB_PATH, 'utf8') || '[]');
   } catch (err) {
     return [];
   }
@@ -72,55 +104,88 @@ function saveJsonData(data) {
   fs.writeFileSync(FALLBACK_DB_PATH, JSON.stringify(data, null, 2));
 }
 
-// Database Layer API
 const dbLayer = {
-  createDonation: (donationData) => {
+  createDonation: (d) => {
     return new Promise((resolve, reject) => {
       const receiptNo = 'HOPE-80G-' + Date.now().toString().slice(-6) + '-' + Math.floor(1000 + Math.random() * 9000);
+      const fullName = d.name || d.donor_name || `${d.title || ''} ${d.first_name || ''} ${d.last_name || ''}`.trim() || 'Aarav Sharma';
+      
       const record = {
-        donation_id: donationData.donation_id || 'DON-' + Date.now() + '-' + Math.floor(Math.random() * 1000),
-        donor_name: donationData.donor_name,
-        email: donationData.email,
-        phone: donationData.phone,
-        address: donationData.address,
-        age: parseInt(donationData.age, 10),
-        pan_number: donationData.pan_number.toUpperCase(),
-        amount: parseFloat(donationData.amount),
-        currency: donationData.currency || 'INR',
-        cause: donationData.cause || 'General Hope Fund',
-        payment_id: donationData.payment_id || 'PAY_TEST_' + Date.now(),
-        order_id: donationData.order_id || 'ORD_TEST_' + Date.now(),
-        signature: donationData.signature || 'SIG_VERIFIED',
-        status: donationData.status || 'completed',
+        donation_id: d.donation_id || 'DON-' + Date.now() + '-' + Math.floor(Math.random() * 1000),
+        api_key: d.apiKey || d.api_key || 'ek_live_hopehopecamp_367634',
+        campaign_slug: d.campaignSlug || d.campaign_slug || 'hope_hopecamp',
+        beneficiary_ngo: 'Hope Fund',
+        urn_80g: 'AAATC1234F2180G1',
+        title: d.title || 'Mr.',
+        first_name: d.firstName || d.first_name || fullName.split(' ')[0] || '',
+        last_name: d.lastName || d.last_name || fullName.split(' ').slice(1).join(' ') || '',
+        donor_name: fullName,
+        email: d.email || d.donor_email,
+        phone: d.phone || d.donor_phone,
+        alt_phone: d.altPhone || d.alt_phone || '',
+        tax_id: (d.taxId || d.pan_number || d.pan || '').toUpperCase(),
+        dob: d.dob || d.birthdate || '',
+        gender: d.gender || 'Male',
+        donor_type: d.donorType || d.donor_type || 'Individual',
+        citizenship: d.citizenship || 'Indian',
+        address: d.address || d.street_address_1 || '',
+        street_address_2: d.street_address_2 || '',
+        pincode: d.pincode || d.zip_code || '',
+        city: d.city || '',
+        state: d.state || '',
+        country: d.country || 'India',
+        is_80g_requested: d.is80GRequested !== undefined ? (d.is80GRequested ? 1 : 0) : 1,
+        pan_holder_name: d.panHolderName || d.pan_holder_name || fullName,
+        certificate_language: d.certificateLanguage || 'en',
+        is_anonymous: d.isAnonymous ? 1 : 0,
+        consent_email: d.consentEmail !== undefined ? (d.consentEmail ? 1 : 0) : 1,
+        consent_whatsapp: d.consentWhatsapp !== undefined ? (d.consentWhatsapp ? 1 : 0) : 1,
+        consent_sms: d.consentSms !== undefined ? (d.consentSms ? 1 : 0) : 1,
+        preferred_channel: d.preferredChannel || 'both',
+        utm_source: d.utm_source || 'direct',
+        utm_medium: d.utm_medium || 'web',
+        utm_campaign: d.utm_campaign || 'hope_hopecamp',
+        fundraiser_id: d.fundraiser_id || '',
+        volunteer_code: d.volunteer_code || '',
+        comments: d.comments || '',
+        custom_form_data: typeof d.customFormData === 'object' ? JSON.stringify(d.customFormData) : (d.custom_form_data || '{}'),
+        amount: parseFloat(d.amount),
+        currency: d.currency || 'INR',
+        is_monthly: d.isMonthly || d.is_monthly ? 1 : 0,
+        cause: d.cause || 'Hope Fund Initiative',
+        gateway: d.gateway || 'razorpay',
+        fallback_gateway: d.fallbackGateway || d.fallback_gateway || 'cashfree',
+        payment_id: d.payment_id || 'PAY_' + Date.now(),
+        order_id: d.order_id || 'ORD_' + Date.now(),
+        signature: d.signature || 'SIG_VERIFIED',
+        status: d.status || 'completed',
         receipt_80g_no: receiptNo,
         created_at: new Date().toISOString()
       };
 
       if (isNativeSqlite && db) {
         const sql = `
-          INSERT INTO donations 
-          (donation_id, donor_name, email, phone, address, age, pan_number, amount, currency, cause, payment_id, order_id, signature, status, receipt_80g_no, created_at)
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          INSERT INTO donations (
+            donation_id, api_key, campaign_slug, beneficiary_ngo, urn_80g, title, first_name, last_name,
+            donor_name, email, phone, alt_phone, tax_id, dob, gender, donor_type, citizenship,
+            address, street_address_2, pincode, city, state, country, is_80g_requested, pan_holder_name,
+            certificate_language, is_anonymous, consent_email, consent_whatsapp, consent_sms, preferred_channel,
+            utm_source, utm_medium, utm_campaign, fundraiser_id, volunteer_code, comments, custom_form_data,
+            amount, currency, is_monthly, cause, gateway, fallback_gateway, payment_id, order_id, signature, status, receipt_80g_no, created_at
+          ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
         `;
         db.run(
           sql,
           [
-            record.donation_id,
-            record.donor_name,
-            record.email,
-            record.phone,
-            record.address,
-            record.age,
-            record.pan_number,
-            record.amount,
-            record.currency,
-            record.cause,
-            record.payment_id,
-            record.order_id,
-            record.signature,
-            record.status,
-            record.receipt_80g_no,
-            record.created_at
+            record.donation_id, record.api_key, record.campaign_slug, record.beneficiary_ngo, record.urn_80g,
+            record.title, record.first_name, record.last_name, record.donor_name, record.email, record.phone, record.alt_phone,
+            record.tax_id, record.dob, record.gender, record.donor_type, record.citizenship, record.address,
+            record.street_address_2, record.pincode, record.city, record.state, record.country, record.is_80g_requested,
+            record.pan_holder_name, record.certificate_language, record.is_anonymous, record.consent_email,
+            record.consent_whatsapp, record.consent_sms, record.preferred_channel, record.utm_source, record.utm_medium,
+            record.utm_campaign, record.fundraiser_id, record.volunteer_code, record.comments, record.custom_form_data,
+            record.amount, record.currency, record.is_monthly, record.cause, record.gateway, record.fallback_gateway,
+            record.payment_id, record.order_id, record.signature, record.status, record.receipt_80g_no, record.created_at
           ],
           function (err) {
             if (err) return reject(err);
@@ -151,21 +216,6 @@ const dbLayer = {
     });
   },
 
-  getDonationByPaymentId: (paymentId) => {
-    return new Promise((resolve, reject) => {
-      if (isNativeSqlite && db) {
-        db.get('SELECT * FROM donations WHERE payment_id = ? OR donation_id = ?', [paymentId, paymentId], (err, row) => {
-          if (err) return reject(err);
-          resolve(row);
-        });
-      } else {
-        const records = getJsonData();
-        const found = records.find(r => r.payment_id === paymentId || r.donation_id === paymentId);
-        resolve(found || null);
-      }
-    });
-  },
-
   getStats: () => {
     return new Promise((resolve, reject) => {
       if (isNativeSqlite && db) {
@@ -183,7 +233,7 @@ const dbLayer = {
             totalDonations: row.total_donations || 0,
             totalAmount: row.total_amount || 0,
             uniqueDonors: row.unique_donors || 0,
-            childrenHelped: Math.floor((row.total_amount || 0) / 1000) + 125 // Includes baseline community impact
+            childrenHelped: Math.floor((row.total_amount || 0) / 1000) + 125
           });
         });
       } else {

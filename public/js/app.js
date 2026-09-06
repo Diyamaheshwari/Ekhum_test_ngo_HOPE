@@ -3,6 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initNavigation();
   initImpactCalculator();
   initAmountPresets();
+  initPincodeAutoResolve();
   fetchStats();
   fetchLiveDonors();
 });
@@ -20,10 +21,41 @@ function initNavigation() {
   }
 
   window.addEventListener('scroll', () => {
-    if (window.scrollY > 50) {
-      navbar.style.boxShadow = '0 10px 25px -5px rgba(0,0,0,0.1)';
-    } else {
-      navbar.style.boxShadow = 'none';
+    if (navbar) {
+      if (window.scrollY > 50) {
+        navbar.style.boxShadow = '0 10px 25px -5px rgba(0,0,0,0.1)';
+      } else {
+        navbar.style.boxShadow = 'none';
+      }
+    }
+  });
+}
+
+// Indian Pincode Auto Resolution to City & State
+function initPincodeAutoResolve() {
+  const pincodeInput = document.getElementById('donor_pincode');
+  const cityInput = document.getElementById('donor_city');
+  const stateInput = document.getElementById('donor_state');
+
+  if (!pincodeInput) return;
+
+  const pincodeMap = {
+    '400001': { city: 'Mumbai', state: 'Maharashtra' },
+    '110001': { city: 'New Delhi', state: 'Delhi' },
+    '560001': { city: 'Bengaluru', state: 'Karnataka' },
+    '600001': { city: 'Chennai', state: 'Tamil Nadu' },
+    '700001': { city: 'Kolkata', state: 'West Bengal' },
+    '500001': { city: 'Hyderabad', state: 'Telangana' },
+    '380001': { city: 'Ahmedabad', state: 'Gujarat' },
+    '411001': { city: 'Pune', state: 'Maharashtra' },
+    '302001': { city: 'Jaipur', state: 'Rajasthan' }
+  };
+
+  pincodeInput.addEventListener('input', (e) => {
+    const val = e.target.value.trim();
+    if (val.length === 6 && pincodeMap[val]) {
+      cityInput.value = pincodeMap[val].city;
+      stateInput.value = pincodeMap[val].state;
     }
   });
 }
@@ -48,11 +80,10 @@ function initImpactCalculator() {
     amountDisplay.textContent = `₹ ${amount.toLocaleString('en-IN')}`;
     btnText.textContent = amount.toLocaleString('en-IN');
 
-    // Formulas for tangible real-world outcomes
     const monthsSchooling = Math.max(1, Math.floor(amount / 800));
     const hotMeals = Math.floor(amount / 25);
     const healthCheckups = Math.max(1, Math.floor(amount / 2000));
-    const taxSaving = Math.floor(amount * 0.5); // 50% under 80G
+    const taxSaving = Math.floor(amount * 0.5);
 
     resSchooling.textContent = `${monthsSchooling} ${monthsSchooling === 1 ? 'Month' : 'Months'}`;
     resMeals.textContent = `${hotMeals.toLocaleString('en-IN')} Meals`;
@@ -75,12 +106,12 @@ function initImpactCalculator() {
   updateCalculator(slider.value);
 }
 
-// Amount Preset Buttons on Donor Form
+// Amount Preset Buttons
 function initAmountPresets() {
   const presets = document.querySelectorAll('.btn-preset');
   const hiddenInput = document.getElementById('selectedAmount');
   const customWrap = document.getElementById('customAmountWrap');
-  const customInput = document.getElementById('customAmountInput');
+  const customInput = document.getElementById('donation_amount');
   const submitText = document.getElementById('submitAmountText');
 
   presets.forEach(btn => {
@@ -90,9 +121,11 @@ function initAmountPresets() {
       if (btn.id === 'btnCustomAmount') {
         btn.classList.add('active');
         customWrap.classList.remove('d-none');
-        customInput.focus();
-        if (customInput.value) {
-          updateSelectedAmount(customInput.value);
+        if (customInput) {
+          customInput.focus();
+          if (customInput.value) {
+            updateSelectedAmount(customInput.value);
+          }
         }
       } else {
         btn.classList.add('active');
@@ -115,7 +148,7 @@ function initAmountPresets() {
 function selectAmountPreset(amt) {
   const presets = document.querySelectorAll('.btn-preset');
   const customWrap = document.getElementById('customAmountWrap');
-  const customInput = document.getElementById('customAmountInput');
+  const customInput = document.getElementById('donation_amount');
 
   let matched = false;
   presets.forEach(btn => {
@@ -128,10 +161,10 @@ function selectAmountPreset(amt) {
 
   if (!matched) {
     document.getElementById('btnCustomAmount').classList.add('active');
-    customWrap.classList.remove('d-none');
-    customInput.value = amt;
+    if (customWrap) customWrap.classList.remove('d-none');
+    if (customInput) customInput.value = amt;
   } else {
-    customWrap.classList.add('d-none');
+    if (customWrap) customWrap.classList.add('d-none');
   }
 
   updateSelectedAmount(amt);
@@ -141,21 +174,15 @@ function updateSelectedAmount(amt) {
   const hiddenInput = document.getElementById('selectedAmount');
   const submitText = document.getElementById('submitAmountText');
   const formatted = parseInt(amt, 10).toLocaleString('en-IN');
-  hiddenInput.value = amt;
-  submitText.textContent = formatted;
+  if (hiddenInput) hiddenInput.value = amt;
+  if (submitText) submitText.textContent = formatted;
 }
 
-// Select cause from card CTA
 function selectCause(causeName, defaultAmount) {
-  const causeSelect = document.getElementById('donationCause');
-  if (causeSelect) {
-    causeSelect.value = causeName;
-  }
   selectAmountPreset(defaultAmount);
   document.getElementById('donate').scrollIntoView({ behavior: 'smooth' });
 }
 
-// Fetch live statistics for Hero Counters
 async function fetchStats() {
   try {
     const res = await fetch('/api/donations/stats');

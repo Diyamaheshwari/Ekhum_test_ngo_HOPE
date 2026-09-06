@@ -1,4 +1,4 @@
-// Admin Data Layer Inspector & Live Donor Wall Renderer
+// Admin CRM Data Layer Inspector & Live Donor Wall Renderer
 
 async function fetchLiveDonors() {
   const grid = document.getElementById('donorsGrid');
@@ -15,7 +15,6 @@ async function fetchLiveDonors() {
         return;
       }
 
-      // Render Donor Cards
       grid.innerHTML = data.donations.map(d => {
         const initial = d.donor_name ? d.donor_name.charAt(0).toUpperCase() : 'H';
         const formattedAmt = parseFloat(d.amount).toLocaleString('en-IN');
@@ -27,19 +26,18 @@ async function fetchLiveDonors() {
             <div class="donor-details">
               <h4>${escapeHtml(d.donor_name)}</h4>
               <p><i class="fa-solid fa-heart text-danger"></i> ${escapeHtml(d.cause)}</p>
-              <small class="text-muted">${timeAgo} • 80G Verified</small>
+              <small class="text-muted">${timeAgo} • URN: AAATC1234F</small>
             </div>
             <div class="donor-amount">₹${formattedAmt}</div>
           </div>
         `;
       }).join('');
 
-      // Update Ticker
       if (ticker && data.donations.length > 0) {
         ticker.innerHTML = data.donations.slice(0, 5).map(d => `
           <span class="ticker-item">
             <i class="fa-solid fa-heart text-danger"></i> 
-            <strong>${escapeHtml(d.donor_name)}</strong> donated ₹${parseFloat(d.amount).toLocaleString('en-IN')} for ${escapeHtml(d.cause)}!
+            <strong>${escapeHtml(d.donor_name)}</strong> donated ₹${parseFloat(d.amount).toLocaleString('en-IN')} to Hope Fund!
           </span>
         `).join('');
       }
@@ -50,7 +48,6 @@ async function fetchLiveDonors() {
   }
 }
 
-// Data Layer Inspector Modal Handling
 async function openAdminModal() {
   document.getElementById('adminModal').classList.remove('d-none');
   await loadAdminData();
@@ -63,7 +60,7 @@ function closeAdminModal() {
 async function loadAdminData() {
   const tbody = document.getElementById('adminTableBody');
   const statsRow = document.getElementById('adminStatsRow');
-  tbody.innerHTML = '<tr><td colspan="9" class="text-center p-3"><i class="fa-solid fa-spinner fa-spin"></i> Reading database records...</td></tr>';
+  tbody.innerHTML = '<tr><td colspan="9" class="text-center p-3"><i class="fa-solid fa-spinner fa-spin"></i> Reading CRM data layer...</td></tr>';
 
   try {
     const [donationsRes, statsRes] = await Promise.all([
@@ -81,7 +78,7 @@ async function loadAdminData() {
           <div class="stat-icon"><i class="fa-solid fa-database text-warning"></i></div>
           <div class="stat-info">
             <h3>${s.totalDonations}</h3>
-            <p>Database Total Entries</p>
+            <p>EKhum Database Total Records</p>
           </div>
         </div>
         <div class="stat-card" style="background:#1E293B; color:#fff;">
@@ -92,10 +89,10 @@ async function loadAdminData() {
           </div>
         </div>
         <div class="stat-card" style="background:#1E293B; color:#fff;">
-          <div class="stat-icon"><i class="fa-solid fa-user-check text-primary"></i></div>
+          <div class="stat-icon"><i class="fa-solid fa-certificate text-primary"></i></div>
           <div class="stat-info">
-            <h3>${s.uniqueDonors}</h3>
-            <p>Unique Donor Email Profiles</p>
+            <h3>AAATC1234F</h3>
+            <p>Statutory 80G URN</p>
           </div>
         </div>
       `;
@@ -103,7 +100,7 @@ async function loadAdminData() {
 
     if (donationsData.success && donationsData.donations) {
       if (donationsData.donations.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="9" class="text-center p-3">No records found in database. Submit a donation to view live storage!</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="9" class="text-center p-3">No records found. Submit a donation to view live CRM storage!</td></tr>';
         return;
       }
 
@@ -113,20 +110,19 @@ async function loadAdminData() {
           <td>${escapeHtml(d.donor_name)}</td>
           <td>${escapeHtml(d.masked_email)}</td>
           <td>***-***-${d.id}</td>
-          <td>Verified</td>
           <td><code>${escapeHtml(d.masked_pan)}</code></td>
+          <td><small>India</small></td>
           <td><strong class="text-success">₹${parseFloat(d.amount).toLocaleString('en-IN')}</strong></td>
-          <td><small>${escapeHtml(d.cause)}</small></td>
+          <td><span class="badge badge-info">Razorpay Rail</span></td>
           <td><span class="badge badge-warning">${escapeHtml(d.receipt_80g_no || 'HOPE-80G')}</span></td>
         </tr>
       `).join('');
     }
   } catch (err) {
-    tbody.innerHTML = `<tr><td colspan="9" class="text-center text-danger p-3">Error connecting to database layer: ${err.message}</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="9" class="text-center text-danger p-3">Error loading CRM layer: ${err.message}</td></tr>`;
   }
 }
 
-// Utility Helpers
 function formatTimeAgo(isoString) {
   if (!isoString) return 'recently';
   const diffSec = Math.floor((new Date() - new Date(isoString)) / 1000);

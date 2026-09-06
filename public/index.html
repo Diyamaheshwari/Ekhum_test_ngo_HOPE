@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>FOR THE HOPE | Empowering Children & Communities NGO</title>
-  <meta name="description" content="FOR THE HOPE Foundation is a registered non-profit organization dedicated to child education, healthcare, and hunger relief. 100% transparent donations with 80G tax benefits.">
+  <title>Hope Fund | Campaign: Hope (/hope_hopecamp)</title>
+  <meta name="description" content="Official Donation Page for Hope Fund (80G URN: AAATC1234F2180G1). Empowering children through education, healthcare, and community support. 50% Tax Exemption eligible.">
   
   <!-- Fonts & Icons -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -15,18 +15,20 @@
   <!-- Custom CSS -->
   <link rel="stylesheet" href="css/style.css">
 
-  <!-- Razorpay Checkout SDK -->
+  <!-- Gateway & EKhum Embed SDKs -->
+  <script src="https://sdk.cashfree.com/js/v3/cashfree.js"></script>
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  <script src="https://ekhum.org/api/v1/external/embed.js"></script>
 </head>
 <body>
 
   <!-- Announcement Bar -->
   <div class="announcement-bar">
     <div class="container announcement-content">
-      <span><i class="fa-solid fa-certificate text-warning"></i> Registered NGO | <strong>50% Tax Exemption under Section 80G</strong> with instant digital receipt</span>
+      <span><i class="fa-solid fa-certificate text-warning"></i> Beneficiary NGO: <strong>Hope Fund</strong> (Statutory 80G URN: <strong>AAATC1234F2180G1</strong>)</span>
       <div class="announcement-links">
-        <a href="#tax-info"><i class="fa-solid fa-shield-halved"></i> Tax Benefits</a>
-        <a href="javascript:void(0)" onclick="openAdminModal()"><i class="fa-solid fa-database"></i> Live Database Layer</a>
+        <a href="#tax-info"><i class="fa-solid fa-shield-halved"></i> 80G Compliance</a>
+        <a href="javascript:void(0)" onclick="openAdminModal()"><i class="fa-solid fa-database"></i> CRM Data Layer</a>
       </div>
     </div>
   </div>
@@ -37,14 +39,14 @@
       <a href="#" class="brand-logo">
         <div class="logo-icon"><i class="fa-solid fa-hands-holding-child"></i></div>
         <div class="logo-text">
-          <span class="logo-title">FOR THE HOPE</span>
-          <span class="logo-subtitle">FOUNDATION</span>
+          <span class="logo-title">HOPE FUND</span>
+          <span class="logo-subtitle">CAMPAIGN: HOPE</span>
         </div>
       </a>
 
       <nav class="nav-menu" id="navMenu">
         <a href="#home" class="nav-link active">Home</a>
-        <a href="#causes" class="nav-link">Our Causes</a>
+        <a href="#causes" class="nav-link">Our Initiatives</a>
         <a href="#impact" class="nav-link">Impact Calculator</a>
         <a href="#donate" class="nav-link">Donate</a>
         <a href="#donors-wall" class="nav-link">Live Donors</a>
@@ -52,7 +54,7 @@
       </nav>
 
       <div class="nav-actions">
-        <button class="btn btn-outline" onclick="openAdminModal()"><i class="fa-solid fa-chart-line"></i> Data Layer</button>
+        <button class="btn btn-outline" onclick="openAdminModal()"><i class="fa-solid fa-server"></i> CRM Data</button>
         <a href="#donate" class="btn btn-primary btn-pulse"><i class="fa-solid fa-heart"></i> Donate Now</a>
         <button class="mobile-toggle" id="mobileToggle" aria-label="Toggle Navigation"><i class="fa-solid fa-bars"></i></button>
       </div>
@@ -65,15 +67,15 @@
     <div class="hero-overlay"></div>
     <div class="container hero-container">
       <div class="hero-content">
-        <div class="badge badge-hero"><i class="fa-solid fa-sparkles"></i> Hope Starts With Every Heart</div>
-        <h1 class="hero-title">Bring Smiles &amp; Education To Children <span class="highlight-text">For The Hope</span></h1>
+        <div class="badge badge-hero"><i class="fa-solid fa-sparkles"></i> Hope Fund Campaign: /hope_hopecamp</div>
+        <h1 class="hero-title">Bring Smiles &amp; Education To Children <span class="highlight-text">For Hope Fund</span></h1>
         <p class="hero-description">
-          Over 125,000+ lives touched. Every single rupee directly funds books, hot meals, emergency medical aid, and shelter for children in underserved communities.
+          Empowering over 125,000+ children with quality schooling, warm meals, and health checkups. Supported by primary <strong>Razorpay Gateway Rail</strong> with automatic <strong>Cashfree Failover</strong>.
         </p>
 
         <div class="hero-cta-group">
-          <a href="#donate" class="btn btn-hero-primary"><i class="fa-solid fa-hand-holding-heart"></i> Make a Difference Today</a>
-          <a href="#impact" class="btn btn-hero-secondary"><i class="fa-solid fa-calculator"></i> Calculate Your Impact</a>
+          <a href="#donate" class="btn btn-hero-primary"><i class="fa-solid fa-hand-holding-heart"></i> Support Hope Campaign</a>
+          <a href="#impact" class="btn btn-hero-secondary"><i class="fa-solid fa-calculator"></i> Calculate Impact</a>
         </div>
 
         <!-- Hero Stats Banner -->
@@ -102,8 +104,8 @@
           <div class="stat-card">
             <div class="stat-icon"><i class="fa-solid fa-shield-heart"></i></div>
             <div class="stat-info">
-              <h3>100%</h3>
-              <p>Transparent &amp; 80G</p>
+              <h3>AAATC1234F</h3>
+              <p>80G Statutory URN</p>
             </div>
           </div>
         </div>
@@ -115,19 +117,19 @@
   <div class="ticker-wrapper">
     <div class="ticker-label"><i class="fa-solid fa-bolt"></i> Live Support</div>
     <div class="ticker-content" id="donationTicker">
-      <span class="ticker-item"><i class="fa-solid fa-heart text-danger"></i> Rahul S. donated ₹2,500 for Child Education just now!</span>
-      <span class="ticker-item"><i class="fa-solid fa-heart text-danger"></i> Priya M. donated ₹1,000 for Hunger Relief!</span>
-      <span class="ticker-item"><i class="fa-solid fa-heart text-danger"></i> Amit K. donated ₹5,000 for Medical Healthcare!</span>
+      <span class="ticker-item"><i class="fa-solid fa-heart text-danger"></i> Aarav Sharma donated ₹2,500 for Child Education!</span>
+      <span class="ticker-item"><i class="fa-solid fa-heart text-danger"></i> Priya M. donated ₹1,000 for Zero Hunger!</span>
+      <span class="ticker-item"><i class="fa-solid fa-heart text-danger"></i> Amit K. donated ₹5,000 for Healthcare!</span>
     </div>
   </div>
 
-  <!-- Featured Causes Section -->
+  <!-- Featured Initiatives Section -->
   <section class="section-padding causes-section" id="causes">
     <div class="container">
       <div class="section-header text-center">
-        <span class="sub-heading"><i class="fa-solid fa-seedling"></i> Urgent Initiatives</span>
-        <h2 class="section-title">Causes You Can Support For The Hope</h2>
-        <p class="section-subtitle">Choose a cause close to your heart. Every contribution delivers direct, measurable relief.</p>
+        <span class="sub-heading"><i class="fa-solid fa-seedling"></i> Hope Initiatives</span>
+        <h2 class="section-title">Causes You Can Support For Hope Fund</h2>
+        <p class="section-subtitle">Every contribution directly funds underprivileged children in rural and urban communities.</p>
       </div>
 
       <div class="causes-grid">
@@ -139,7 +141,7 @@
           </div>
           <div class="cause-body">
             <h3>Educate A Child For A Year</h3>
-            <p>Provides tuition fees, textbooks, uniforms, school bags, and digital tablet access to children in rural villages.</p>
+            <p>Tuition fees, textbooks, uniforms, school bags, and digital tablet access for rural children.</p>
             
             <div class="progress-container">
               <div class="progress-bar-wrap">
@@ -164,8 +166,8 @@
             <span class="cause-badge badge-warning">Hunger Relief</span>
           </div>
           <div class="cause-body">
-            <h3>Zero Hunger Meal Kits</h3>
-            <p>Delivers daily hot nutritious meals and essential ration kits to slum families and malnourished toddlers.</p>
+            <h3>Zero Hunger Ration Kits</h3>
+            <p>Daily hot nutritious meals and essential monthly ration kits to slum families.</p>
             
             <div class="progress-container">
               <div class="progress-bar-wrap">
@@ -190,8 +192,8 @@
             <span class="cause-badge badge-info">Medical Aid</span>
           </div>
           <div class="cause-body">
-            <h3>Pediatric Emergency &amp; Healthcare</h3>
-            <p>Funds life-saving surgeries, medical health camps, vaccinations, and clean drinking water purification plants.</p>
+            <h3>Pediatric Emergency Aid</h3>
+            <p>Funds life-saving pediatric surgeries, medical camps, and clean drinking water purification plants.</p>
             
             <div class="progress-container">
               <div class="progress-bar-wrap">
@@ -217,9 +219,9 @@
     <div class="container">
       <div class="impact-box">
         <div class="impact-content">
-          <span class="sub-heading"><i class="fa-solid fa-wand-magic-sparkles"></i> Interactive Transparency</span>
-          <h2>See How Your Donation Creates Hope</h2>
-          <p>Adjust the slider below to see the exact real-world transformation your contribution creates immediately.</p>
+          <span class="sub-heading"><i class="fa-solid fa-wand-magic-sparkles"></i> Transparency Calculator</span>
+          <h2>See How Your Donation Empowers Hope Fund</h2>
+          <p>Adjust the slider to see the exact real-world impact your contribution generates.</p>
 
           <div class="calculator-card">
             <div class="calc-header">
@@ -255,7 +257,7 @@
               <div class="result-box">
                 <i class="fa-solid fa-percent"></i>
                 <h4 id="resTaxSave">₹ 1,250</h4>
-                <p>80G Tax Deduction Saved</p>
+                <p>80G Tax Exemption Saved</p>
               </div>
             </div>
 
@@ -268,36 +270,37 @@
     </div>
   </section>
 
-  <!-- Donation Form Section with Mandatory Fields -->
+  <!-- Comprehensive EKhum KYC Donor Registration & Payment Section -->
   <section class="section-padding donation-form-section" id="donate">
     <div class="container">
       <div class="donation-wrapper">
         <!-- Info Column -->
         <div class="donation-info-col">
-          <span class="sub-heading"><i class="fa-solid fa-lock"></i> Secure Payment Gateway</span>
-          <h2>Make a Contribution For The Hope</h2>
-          <p>Your support brings immediate relief to families in need. All donations are 100% secure, encrypted, and eligible for <strong>50% Tax Exemption under Section 80G</strong> of the Income Tax Act.</p>
+          <span class="sub-heading"><i class="fa-solid fa-lock"></i> EKhum Gateway Integration</span>
+          <h2>Contribution to Hope Fund</h2>
+          <p>Campaign API Key: <code>ek_live_hopehopecamp_367634</code></p>
+          <p>Statutory 80G URN: <strong>AAATC1234F2180G1</strong></p>
 
           <div class="trust-features">
             <div class="trust-item">
               <i class="fa-solid fa-circle-check text-success"></i>
               <div>
-                <h4>Instant 80G Tax Receipt</h4>
-                <p>Digital receipt with unique government certificate reference generated immediately post donation.</p>
+                <h4>Multi-Gateway Smart Failover Engine</h4>
+                <p>Primary: <strong>Razorpay Gateway Rail</strong> | Failover: <strong>Cashfree UPI Intent Rail</strong></p>
               </div>
             </div>
             <div class="trust-item">
               <i class="fa-solid fa-shield-halved text-primary"></i>
               <div>
-                <h4>Razorpay Encrypted Processing</h4>
-                <p>Supports UPI, Net Banking, Credit/Debit Cards, Google Pay, PhonePe, Paytm, and International cards.</p>
+                <h4>Full Contact KYC &amp; CRM Layer</h4>
+                <p>Automatically upserted into Hope Fund's database with 80G &amp; Form 10BD statutory compliance.</p>
               </div>
             </div>
             <div class="trust-item">
-              <i class="fa-solid fa-database text-warning"></i>
+              <i class="fa-solid fa-user-shield text-warning"></i>
               <div>
-                <h4>Software Data Layer Integration</h4>
-                <p>Donor profile and payment records are seamlessly verified & stored in the NGO database layer.</p>
+                <h4>DPDP Act Compliant Consents</h4>
+                <p>Granular opt-in consents for Email, WhatsApp, and SMS communications.</p>
               </div>
             </div>
           </div>
@@ -305,8 +308,8 @@
           <div class="tax-highlight-box" id="tax-info">
             <div class="tax-icon"><i class="fa-solid fa-receipt"></i></div>
             <div class="tax-text">
-              <h4>80G Tax Benefit Requirements</h4>
-              <p>As per Indian Income Tax regulations, providing your <strong>PAN Card Number</strong> is mandatory to claim 50% tax exemption on your annual returns.</p>
+              <h4>80G Certificate URN: AAATC1234F2180G1</h4>
+              <p>As per Indian Income Tax regulations, providing your 10-digit <strong>PAN Card Number</strong> (KYC Uppercased) is mandatory for claiming 50% tax exemption.</p>
             </div>
           </div>
         </div>
@@ -316,27 +319,16 @@
           <div class="form-card shadow-lg">
             <div class="form-header">
               <h3><i class="fa-solid fa-heart-circle-check text-danger"></i> Donor Registration &amp; Payment</h3>
-              <p>Please provide your mandatory donor details for processing &amp; receipt issuance.</p>
+              <p>Campaign Slug: <code>hope_hopecamp</code> | Hope Fund</p>
             </div>
 
-            <!-- Form Validation Alert Box -->
+            <!-- Validation Alert Box -->
             <div class="alert alert-danger d-none" id="formAlertBox"></div>
 
-            <form id="ngoDonationForm" class="donation-form">
-              <!-- Cause Selection -->
+            <form id="donation-form" class="donation-form">
+              <!-- Donation Frequency & Amount -->
               <div class="form-group">
-                <label class="form-label"><i class="fa-solid fa-hand-holding-heart"></i> Select Initiative / Cause <span class="required">*</span></label>
-                <select id="donationCause" class="form-input" required>
-                  <option value="General Hope Fund">General Hope Fund (Where Needed Most)</option>
-                  <option value="Child Education & Schooling">Child Education &amp; Schooling Support</option>
-                  <option value="Zero Hunger & Ration Kits">Zero Hunger &amp; Family Ration Kits</option>
-                  <option value="Pediatric Healthcare & Surgeries">Pediatric Healthcare &amp; Medical Aid</option>
-                </select>
-              </div>
-
-              <!-- Amount Presets -->
-              <div class="form-group">
-                <label class="form-label"><i class="fa-solid fa-indian-rupee-sign"></i> Select Amount (INR) <span class="required">*</span></label>
+                <label class="form-label"><i class="fa-solid fa-indian-rupee-sign"></i> Select Contribution Amount <span class="required">*</span></label>
                 <div class="amount-presets">
                   <button type="button" class="btn-preset" data-amount="500">₹500</button>
                   <button type="button" class="btn-preset active" data-amount="1000">₹1,000</button>
@@ -345,65 +337,158 @@
                   <button type="button" class="btn-preset" id="btnCustomAmount">Custom</button>
                 </div>
                 <div class="custom-amount-wrap d-none" id="customAmountWrap">
-                  <input type="number" id="customAmountInput" class="form-input" placeholder="Enter custom amount in ₹" min="100">
+                  <input type="number" id="donation_amount" class="form-input" placeholder="Enter custom amount in ₹" min="100" value="1000">
                 </div>
                 <input type="hidden" id="selectedAmount" value="1000">
               </div>
 
-              <div class="divider"><span>Mandatory Donor Information</span></div>
-
-              <!-- Field 1: Name -->
-              <div class="form-group">
-                <label class="form-label" for="donorName"><i class="fa-solid fa-user"></i> Full Name <span class="required">*</span></label>
-                <input type="text" id="donorName" class="form-input" placeholder="e.g. Diya Maheshwari" required minlength="2">
-                <small class="form-hint">Name as per official ID / Tax record</small>
+              <!-- Monthly Mandate Checkbox -->
+              <div class="form-group form-check mb-3">
+                <input type="checkbox" id="is_monthly">
+                <label for="is_monthly"><strong>Make this a Monthly Recurring Contribution</strong> (Automated Mandate)</label>
               </div>
 
-              <!-- Field 2 & 3: Email and Phone -->
+              <div class="divider"><span>1. Personal &amp; Contact KYC</span></div>
+
+              <!-- Title, First & Last Name -->
               <div class="form-row">
-                <div class="form-group col-6">
-                  <label class="form-label" for="donorEmail"><i class="fa-solid fa-envelope"></i> Email Address <span class="required">*</span></label>
-                  <input type="email" id="donorEmail" class="form-input" placeholder="name@example.com" required>
+                <div class="form-group col-3">
+                  <label class="form-label" for="donor_title">Title</label>
+                  <select id="donor_title" class="form-input">
+                    <option value="Mr.">Mr.</option>
+                    <option value="Mrs.">Mrs.</option>
+                    <option value="Ms.">Ms.</option>
+                    <option value="Dr.">Dr.</option>
+                    <option value="Prof.">Prof.</option>
+                  </select>
                 </div>
-                <div class="form-group col-6">
-                  <label class="form-label" for="donorPhone"><i class="fa-solid fa-phone"></i> Contact Number <span class="required">*</span></label>
-                  <input type="tel" id="donorPhone" class="form-input" placeholder="e.g. 9876543210" required pattern="[0-9+\s\-]{8,15}">
+                <div class="form-group col-4">
+                  <label class="form-label" for="donor_first_name">First Name <span class="required">*</span></label>
+                  <input type="text" id="donor_first_name" class="form-input" placeholder="Aarav" required>
                 </div>
-              </div>
-
-              <!-- Field 4: Full Address -->
-              <div class="form-group">
-                <label class="form-label" for="donorAddress"><i class="fa-solid fa-location-dot"></i> Full Postal Address <span class="required">*</span></label>
-                <textarea id="donorAddress" class="form-input form-textarea" placeholder="Street, City, Pincode & State" required rows="2" minlength="5"></textarea>
-              </div>
-
-              <!-- Field 5 & 6: Age & PAN Card Number -->
-              <div class="form-row">
                 <div class="form-group col-5">
-                  <label class="form-label" for="donorAge"><i class="fa-solid fa-calendar"></i> Age (Years) <span class="required">*</span></label>
-                  <input type="number" id="donorAge" class="form-input" placeholder="e.g. 28" required min="18" max="120">
-                </div>
-                <div class="form-group col-7">
-                  <label class="form-label" for="donorPan"><i class="fa-solid fa-id-card"></i> PAN Card Number <span class="required">*</span></label>
-                  <input type="text" id="donorPan" class="form-input uppercase-input" placeholder="ABCDE1234F" required maxlength="10" pattern="[A-Za-z]{5}[0-9]{4}[A-Za-z]{1}">
-                  <small class="form-hint">Mandatory for 80G Tax Exemption Receipt</small>
+                  <label class="form-label" for="donor_last_name">Last Name <span class="required">*</span></label>
+                  <input type="text" id="donor_last_name" class="form-input" placeholder="Sharma" required>
                 </div>
               </div>
 
-              <!-- Checkbox -->
+              <!-- Hidden Full Name Binding -->
+              <input type="hidden" id="donor_name" value="Aarav Sharma">
+
+              <!-- Email & Phone Numbers -->
+              <div class="form-row">
+                <div class="form-group col-6">
+                  <label class="form-label" for="donor_email"><i class="fa-solid fa-envelope"></i> Email Address <span class="required">*</span></label>
+                  <input type="email" id="donor_email" class="form-input" placeholder="aarav.sharma@example.com" required>
+                </div>
+                <div class="form-group col-6">
+                  <label class="form-label" for="donor_phone"><i class="fa-solid fa-phone"></i> Contact Phone <span class="required">*</span></label>
+                  <input type="tel" id="donor_phone" class="form-input" placeholder="+919876543210" required>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="donor_alt_phone"><i class="fa-solid fa-mobile-screen"></i> Alternate Phone (Optional)</label>
+                <input type="tel" id="donor_alt_phone" class="form-input" placeholder="+919876543211">
+              </div>
+
+              <!-- PAN & PAN Holder Name -->
+              <div class="form-row">
+                <div class="form-group col-6">
+                  <label class="form-label" for="donor_pan"><i class="fa-solid fa-id-card"></i> 10-Digit PAN <span class="required">*</span></label>
+                  <input type="text" id="donor_pan" class="form-input uppercase-input" placeholder="ABCDE1234F" required maxlength="10">
+                </div>
+                <div class="form-group col-6">
+                  <label class="form-label" for="pan_holder_name">PAN Holder Name <span class="required">*</span></label>
+                  <input type="text" id="pan_holder_name" class="form-input" placeholder="Name on PAN Card" required>
+                </div>
+              </div>
+
+              <!-- DOB & Gender -->
+              <div class="form-row">
+                <div class="form-group col-6">
+                  <label class="form-label" for="donor_dob"><i class="fa-solid fa-calendar"></i> Date of Birth</label>
+                  <input type="date" id="donor_dob" class="form-input" value="1988-04-15">
+                </div>
+                <div class="form-group col-6">
+                  <label class="form-label" for="donor_gender">Gender</label>
+                  <select id="donor_gender" class="form-input">
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="divider"><span>2. Postal Address Data Layer</span></div>
+
+              <!-- Address Line 1 & Line 2 -->
+              <div class="form-group">
+                <label class="form-label" for="donor_address"><i class="fa-solid fa-location-dot"></i> Address Line 1 <span class="required">*</span></label>
+                <input type="text" id="donor_address" class="form-input" placeholder="Flat 402, Lotus Heights, MG Road" required>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="donor_address_line_2">Address Line 2 (Landmark)</label>
+                <input type="text" id="donor_address_line_2" class="form-input" placeholder="Near Metro Station">
+              </div>
+
+              <!-- Pincode, City & State -->
+              <div class="form-row">
+                <div class="form-group col-4">
+                  <label class="form-label" for="donor_pincode">Pincode <span class="required">*</span></label>
+                  <input type="text" id="donor_pincode" class="form-input" placeholder="400001" required maxlength="6">
+                </div>
+                <div class="form-group col-4">
+                  <label class="form-label" for="donor_city">City <span class="required">*</span></label>
+                  <input type="text" id="donor_city" class="form-input" placeholder="Mumbai" required>
+                </div>
+                <div class="form-group col-4">
+                  <label class="form-label" for="donor_state">State <span class="required">*</span></label>
+                  <input type="text" id="donor_state" class="form-input" placeholder="Maharashtra" required>
+                </div>
+              </div>
+
+              <div class="divider"><span>3. Consents &amp; Custom Fields</span></div>
+
+              <!-- DPDP Consents -->
               <div class="form-group form-check">
-                <input type="checkbox" id="taxConsent" checked required>
-                <label for="taxConsent">I confirm that the donor details provided above are accurate and I request an 80G tax exemption receipt.</label>
+                <input type="checkbox" id="consent_email" checked>
+                <label for="consent_email">Receive 80G tax receipt and updates via Email</label>
+              </div>
+              <div class="form-group form-check">
+                <input type="checkbox" id="consent_whatsapp" checked>
+                <label for="consent_whatsapp">Receive instant WhatsApp notifications from Hope Fund</label>
+              </div>
+              <div class="form-group form-check">
+                <input type="checkbox" id="consent_sms" checked>
+                <label for="consent_sms">Receive SMS updates</label>
+              </div>
+
+              <!-- Comments & T-Shirt Size -->
+              <div class="form-group">
+                <label class="form-label" for="donor_comments">Donor Comments / Message</label>
+                <textarea id="donor_comments" class="form-input form-textarea" rows="2" placeholder="Donation in support of Hope for Hope Fund"></textarea>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="tshirt_size">Campaign T-Shirt Size (Gift)</label>
+                <select id="tshirt_size" class="form-input">
+                  <option value="S">S - Small</option>
+                  <option value="M">M - Medium</option>
+                  <option value="L" selected>L - Large</option>
+                  <option value="XL">XL - Extra Large</option>
+                </select>
               </div>
 
               <!-- Submit Button -->
-              <button type="submit" class="btn btn-primary btn-block btn-lg" id="btnSubmitDonation">
-                <i class="fa-solid fa-lock"></i> Proceed to Pay ₹<span id="submitAmountText">1,000</span>
+              <button type="button" class="btn btn-primary btn-block btn-lg" id="btnSubmitDonation" onclick="handleDonateSubmit()">
+                <i class="fa-solid fa-lock"></i> Donate ₹<span id="submitAmountText">1,000</span> Now
               </button>
 
               <div class="payment-security-footer">
-                <span><i class="fa-solid fa-shield text-success"></i> 256-bit SSL Encrypted</span>
-                <span><i class="fa-brands fa-cc-visa"></i> <i class="fa-brands fa-cc-mastercard"></i> UPI / Cards</span>
+                <span><i class="fa-solid fa-shield text-success"></i> EKhum Failover Engine</span>
+                <span><i class="fa-solid fa-bolt text-warning"></i> Razorpay &amp; Cashfree Rails</span>
               </div>
             </form>
           </div>
@@ -417,13 +502,12 @@
     <div class="container">
       <div class="section-header text-center">
         <span class="sub-heading"><i class="fa-solid fa-users text-primary"></i> Wall of Gratitude</span>
-        <h2 class="section-title">Recent Contributors For The Hope</h2>
+        <h2 class="section-title">Recent Contributors to Hope Fund</h2>
         <p class="section-subtitle">Real-time donor transactions recorded securely in our software data layer.</p>
       </div>
 
       <div class="donors-grid" id="donorsGrid">
-        <!-- Dynamic content loaded via JS from database -->
-        <div class="loading-spinner"><i class="fa-solid fa-spinner fa-spin"></i> Fetching live database records...</div>
+        <div class="loading-spinner"><i class="fa-solid fa-spinner fa-spin"></i> Loading live database records...</div>
       </div>
     </div>
   </section>
@@ -435,15 +519,15 @@
         <div class="brand-logo footer-logo">
           <div class="logo-icon"><i class="fa-solid fa-hands-holding-child"></i></div>
           <div class="logo-text">
-            <span class="logo-title">FOR THE HOPE</span>
-            <span class="logo-subtitle">FOUNDATION</span>
+            <span class="logo-title">HOPE FUND</span>
+            <span class="logo-subtitle">CAMPAIGN: HOPE</span>
           </div>
         </div>
         <p class="footer-about">
-          FOR THE HOPE is a registered non-profit organization dedicated to breaking the cycle of poverty through quality education, health initiatives, and community empowerment.
+          Hope Fund is a registered non-profit organization working to provide education, nutrition, and pediatric medical care.
         </p>
         <p class="reg-info">
-          <strong>Reg. No:</strong> HOPE/2026/0942 | <strong>80G No:</strong> 80G/REG/HOPE/2026/0942
+          <strong>80G Statutory URN:</strong> AAATC1234F2180G1 | <strong>Campaign:</strong> /hope_hopecamp
         </p>
       </div>
 
@@ -451,7 +535,7 @@
         <h4>Quick Links</h4>
         <ul class="footer-links">
           <li><a href="#home">Home</a></li>
-          <li><a href="#causes">Our Causes</a></li>
+          <li><a href="#causes">Our Initiatives</a></li>
           <li><a href="#impact">Impact Calculator</a></li>
           <li><a href="#donate">Donate Now</a></li>
           <li><a href="#donors-wall">Live Donor Wall</a></li>
@@ -459,25 +543,25 @@
       </div>
 
       <div class="footer-col">
-        <h4>Contact NGO Desk</h4>
+        <h4>Contact Hope Fund</h4>
         <ul class="footer-contact">
           <li><i class="fa-solid fa-location-dot"></i> Hope Center, Block 4, NGO Enclave, New Delhi, India</li>
-          <li><i class="fa-solid fa-envelope"></i> contact@forthehope.org</li>
-          <li><i class="fa-solid fa-phone"></i> +91 98765 43210 / 011-23456789</li>
+          <li><i class="fa-solid fa-envelope"></i> contact@hopefund.org</li>
+          <li><i class="fa-solid fa-phone"></i> +91 98765 43210</li>
         </ul>
       </div>
 
       <div class="footer-col">
-        <h4>Developer &amp; Integration</h4>
-        <p>Software Data Layer: <strong>SQLite Persistent Layer</strong></p>
-        <p>Payment Gateway: <strong>Razorpay Integration</strong></p>
-        <button class="btn btn-outline btn-sm" onclick="openAdminModal()"><i class="fa-solid fa-server"></i> Inspect Database Layer</button>
+        <h4>Gateway &amp; API</h4>
+        <p>API Key: <code>ek_live_hopehopecamp_367634</code></p>
+        <p>Primary Rail: <strong>Razorpay</strong> | Failover: <strong>Cashfree</strong></p>
+        <button class="btn btn-outline btn-sm" onclick="openAdminModal()"><i class="fa-solid fa-server"></i> Inspect CRM Layer</button>
       </div>
     </div>
 
     <div class="footer-bottom">
       <div class="container footer-bottom-content">
-        <p>&copy; 2026 FOR THE HOPE Foundation. All rights reserved. Built with modern web &amp; secure data layer architecture.</p>
+        <p>&copy; 2026 Hope Fund. All rights reserved. Registered 80G Non-Profit URN: AAATC1234F2180G1.</p>
       </div>
     </div>
   </footer>
@@ -489,16 +573,16 @@
       
       <div class="receipt-header">
         <div class="receipt-badge"><i class="fa-solid fa-circle-check text-success"></i> Payment Successful</div>
-        <h2>Official 80G Tax Exemption Receipt</h2>
-        <p>FOR THE HOPE FOUNDATION (Registered Non-Profit)</p>
+        <h2>Statutory 80G Tax Exemption Receipt</h2>
+        <p>HOPE FUND (Registered Non-Profit URN: AAATC1234F2180G1)</p>
       </div>
 
       <div class="receipt-paper" id="receiptPaper">
         <div class="receipt-top-row">
           <div>
-            <h3>FOR THE HOPE FOUNDATION</h3>
-            <p>Reg No: HOPE/2026/0942 | 80G Cert: 80G/REG/HOPE/2026/0942</p>
-            <p>NGO PAN: AAATF9842H</p>
+            <h3>HOPE FUND</h3>
+            <p>Statutory 80G URN: <strong>AAATC1234F2180G1</strong></p>
+            <p>Campaign: /hope_hopecamp</p>
           </div>
           <div class="receipt-no-box">
             <small>Receipt No:</small>
@@ -512,34 +596,38 @@
         <div class="receipt-details-grid">
           <div class="rec-field">
             <span class="rec-label">Donor Full Name:</span>
-            <strong class="rec-val" id="recDonorName">Diya Maheshwari</strong>
+            <strong class="rec-val" id="recDonorName">Aarav Sharma</strong>
           </div>
           <div class="rec-field">
-            <span class="rec-label">Donor PAN Number:</span>
+            <span class="rec-label">Donor PAN Card (taxId):</span>
             <strong class="rec-val highlight-pan" id="recDonorPan">ABCDE1234F</strong>
           </div>
           <div class="rec-field">
             <span class="rec-label">Contact / Email:</span>
-            <strong class="rec-val" id="recDonorContact">diya@example.com | 9876543210</strong>
+            <strong class="rec-val" id="recDonorContact">aarav.sharma@example.com | +919876543210</strong>
           </div>
           <div class="rec-field">
-            <span class="rec-label">Age &amp; Address:</span>
-            <strong class="rec-val" id="recDonorAddress">Age: 25 | 123 Hope St, New Delhi</strong>
+            <span class="rec-label">DOB / Gender:</span>
+            <strong class="rec-val" id="recDonorDob">1988-04-15 (Male)</strong>
+          </div>
+          <div class="rec-field col-12">
+            <span class="rec-label">Full Address:</span>
+            <strong class="rec-val" id="recDonorAddress">Flat 402, Lotus Heights, MG Road, Mumbai, Maharashtra - 400001</strong>
           </div>
           <div class="rec-field">
-            <span class="rec-label">Cause Category:</span>
-            <strong class="rec-val" id="recCause">Child Education</strong>
+            <span class="rec-label">Initiative / Gateway:</span>
+            <strong class="rec-val" id="recCause">Hope Fund / Razorpay Rail</strong>
           </div>
           <div class="rec-field">
             <span class="rec-label">Payment ID:</span>
-            <strong class="rec-val" id="recPaymentId">pay_Rzp123456789</strong>
+            <strong class="rec-val" id="recPaymentId">PAY_SIM_987654</strong>
           </div>
         </div>
 
         <div class="receipt-amount-box">
-          <span>Total Donation Amount Paid:</span>
+          <span>Total Contribution Amount Paid:</span>
           <h2 id="recAmount">₹ 2,500.00</h2>
-          <small><i class="fa-solid fa-shield-halved"></i> 50% Tax Deduction Claimable under Section 80G of Income Tax Act 1961</small>
+          <small><i class="fa-solid fa-shield-halved"></i> 50% Tax Deduction Claimable under Statutory 80G URN: AAATC1234F2180G1</small>
         </div>
       </div>
 
@@ -550,20 +638,18 @@
     </div>
   </div>
 
-  <!-- Modal: Admin Data Layer Viewer -->
+  <!-- Modal: Admin CRM Data Layer Viewer -->
   <div class="modal-backdrop d-none" id="adminModal">
     <div class="modal-card modal-lg">
       <button class="modal-close" onclick="closeAdminModal()">&times;</button>
 
       <div class="receipt-header">
-        <div class="receipt-badge"><i class="fa-solid fa-database text-primary"></i> Data Layer Inspector</div>
-        <h2>SQLite Database &amp; System State</h2>
-        <p>Live verification of backend persistent storage and API statistics</p>
+        <div class="receipt-badge"><i class="fa-solid fa-database text-primary"></i> EKhum CRM &amp; Data Layer</div>
+        <h2>Hope Fund Database &amp; System State</h2>
+        <p>Live verification of full KYC donor attributes and statutory 80G tracking</p>
       </div>
 
-      <div class="admin-stats-row" id="adminStatsRow">
-        <!-- Loaded dynamically -->
-      </div>
+      <div class="admin-stats-row" id="adminStatsRow"></div>
 
       <div class="table-responsive mt-3">
         <table class="data-table">
@@ -573,42 +659,40 @@
               <th>Donor Name</th>
               <th>Email</th>
               <th>Phone</th>
-              <th>Age</th>
-              <th>PAN No.</th>
+              <th>PAN (taxId)</th>
+              <th>Pincode / City</th>
               <th>Amount</th>
-              <th>Cause</th>
+              <th>Gateway</th>
               <th>80G Receipt</th>
             </tr>
           </thead>
-          <tbody id="adminTableBody">
-            <!-- Loaded dynamically -->
-          </tbody>
+          <tbody id="adminTableBody"></tbody>
         </table>
       </div>
 
       <div class="modal-footer">
         <button class="btn btn-secondary" onclick="closeAdminModal()">Close</button>
-        <button class="btn btn-outline" onclick="loadAdminData()"><i class="fa-solid fa-arrows-rotate"></i> Refresh Data</button>
+        <button class="btn btn-outline" onclick="loadAdminData()"><i class="fa-solid fa-arrows-rotate"></i> Refresh CRM Data</button>
       </div>
     </div>
   </div>
 
-  <!-- Simulation Payment Processing Gateway Modal -->
+  <!-- Simulation Payment Gateway Modal -->
   <div class="modal-backdrop d-none" id="paySimModal">
     <div class="modal-card modal-sm text-center">
       <div class="sim-gateway-header">
-        <div class="razorpay-logo"><i class="fa-solid fa-credit-card"></i> Payment Gateway</div>
-        <p>Simulating Razorpay Payment Gateway</p>
+        <div class="razorpay-logo"><i class="fa-solid fa-credit-card"></i> EKhum Multi-Gateway</div>
+        <p>Primary: Razorpay Rail | Failover: Cashfree Rail</p>
       </div>
 
       <div class="sim-body">
         <p>Donation Amount: <strong id="simAmtText">₹1,000</strong></p>
-        <p>Donor: <strong id="simNameText">Diya Maheshwari</strong></p>
-        <p class="sim-note">Click "Complete Payment" to simulate authorized Razorpay transaction completion & database entry.</p>
+        <p>Donor: <strong id="simNameText">Aarav Sharma</strong></p>
+        <p class="sim-note">Simulating authorized EKhum gateway transaction completion & CRM storage for Hope Fund.</p>
 
         <div class="sim-actions">
-          <button class="btn btn-success btn-block btn-lg" onclick="confirmSimulatedPayment()"><i class="fa-solid fa-check-circle"></i> Authorize &amp; Complete Payment</button>
-          <button class="btn btn-danger btn-block" onclick="cancelSimulatedPayment()">Cancel Payment</button>
+          <button class="btn btn-success btn-block btn-lg" onclick="confirmSimulatedPayment()"><i class="fa-solid fa-check-circle"></i> Complete Payment</button>
+          <button class="btn btn-danger btn-block" onclick="cancelSimulatedPayment()">Cancel</button>
         </div>
       </div>
     </div>

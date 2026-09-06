@@ -17,7 +17,7 @@ app.use(express.urlencoded({ extended: true }));
 // Serve static frontend files from 'public' directory
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Razorpay SDK Client Initialization (Supports test & live keys)
+// Razorpay SDK Client Initialization
 const razorpayKeyId = process.env.RAZORPAY_KEY_ID || 'rzp_test_HOPE_NGO_MOCK';
 const razorpayKeySecret = process.env.RAZORPAY_KEY_SECRET || null;
 
@@ -28,62 +28,84 @@ if (razorpayKeySecret && razorpayKeyId !== 'rzp_test_HOPE_NGO_MOCK') {
       key_id: razorpayKeyId,
       key_secret: razorpayKeySecret
     });
-    console.log('Razorpay Gateway initialized in LIVE/TEST mode with provided credentials.');
+    console.log('Razorpay Gateway initialized in LIVE/TEST mode.');
   } catch (err) {
     console.warn('Razorpay SDK init fallback:', err.message);
   }
 }
 
-// Validation Helper for Mandatory Donor Data
+// EKhum Campaign Credentials
+const EKHUM_CONFIG = {
+  apiKey: process.env.EKHUM_API_KEY || 'ek_live_hopehopecamp_367634',
+  campaignSlug: 'hope_hopecamp',
+  ngoName: 'Hope Fund',
+  urn80G: 'AAATC1234F2180G1',
+  primaryGateway: 'razorpay',
+  fallbackGateway: 'cashfree',
+  enableAutoFailover: true
+};
+
+// Validation Helper for Mandatory EKhum Donor Data
 function validateDonorData(data) {
   const errors = [];
-  if (!data.donor_name || data.donor_name.trim().length < 2) {
-    errors.push('Full Name is required and must be at least 2 characters.');
+  const fullName = data.name || data.donor_name || `${data.title || ''} ${data.first_name || ''} ${data.last_name || ''}`.trim();
+  const email = data.email || data.donor_email;
+  const phone = data.phone || data.donor_phone;
+  const address = data.address || data.street_address_1;
+  const pan = data.taxId || data.pan_number || data.donor_pan;
+  const amount = data.amount;
+
+  if (!fullName || fullName.length < 2) {
+    errors.push('Full Name / Donor Name is required (minimum 2 characters).');
   }
-  if (!data.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) {
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     errors.push('A valid Email address is required.');
   }
-  if (!data.phone || !/^[0-9+\s\-]{8,15}$/.test(data.phone)) {
-    errors.push('A valid Contact Number is required.');
+  if (!phone || !/^[0-9+\s\-]{8,15}$/.test(phone)) {
+    errors.push('A valid Contact Phone Number is required.');
   }
-  if (!data.address || data.address.trim().length < 5) {
-    errors.push('Full Address is required.');
+  if (!address || address.trim().length < 5) {
+    errors.push('Full Postal Address is required for statutory 80G tax receipt issuance.');
   }
-  if (!data.age || isNaN(data.age) || parseInt(data.age) < 18 || parseInt(data.age) > 120) {
-    errors.push('Age is required and must be at least 18 years old.');
+  if (!pan || !/^[A-Za-z]{5}[0-9]{4}[A-Za-z]{1}$/.test(pan.trim())) {
+    errors.push('Valid 10-character PAN Card Number (e.g. ABCDE1234F) is mandatory for 80G tax benefit calculation.');
   }
-  if (!data.pan_number || !/^[A-Za-z]{5}[0-9]{4}[A-Za-z]{1}$/.test(data.pan_number.trim())) {
-    errors.push('Valid 10-character PAN Card Number (e.g. ABCDE1234F) is required for 80G tax receipt compliance.');
-  }
-  if (!data.amount || isNaN(data.amount) || parseFloat(data.amount) <= 0) {
+  if (!amount || isNaN(amount) || parseFloat(amount) <= 0) {
     errors.push('Donation amount must be greater than zero.');
   }
   return errors;
 }
 
-// API Route: Public Config
+// API Route: Public Campaign & Gateway Config
 app.get('/api/config', (req, res) => {
   res.json({
     success: true,
-    ngoName: 'FOR THE HOPE Foundation',
+    ngoName: EKHUM_CONFIG.ngoName,
+    urn80G: EKHUM_CONFIG.urn80G,
+    apiKey: EKHUM_CONFIG.apiKey,
+    campaignSlug: EKHUM_CONFIG.campaignSlug,
     razorpayKeyId: razorpayKeyId,
+    gateway: EKHUM_CONFIG.primaryGateway,
+    fallbackGateway: EKHUM_CONFIG.fallbackGateway,
+    enableAutoFailover: EKHUM_CONFIG.enableAutoFailover,
     isSimulationMode: !razorpayInstance,
     currency: 'INR',
     taxExemption80G: true
   });
 });
 
-// API Route: Health Check for Render deployment
+// API Route: Health Check
 app.get('/api/health', (req, res) => {
   res.json({
     status: 'HEALTHY',
-    service: 'FOR THE HOPE NGO API & Web Service',
-    uptime: process.uptime(),
+    service: 'Hope Fund — EKhum Landing Page API & Gateway Rails',
+    campaign: EKHUM_CONFIG.campaignSlug,
+    urn80G: EKHUM_CONFIG.urn80G,
     timestamp: new Date().toISOString()
   });
 });
 
-// API Route: Create Payment Order
+// API Route: Create EKhum Payment Order
 app.post('/api/donations/create-order', async (req, res) => {
   try {
     const donorData = req.body;
@@ -95,19 +117,20 @@ app.post('/api/donations/create-order', async (req, res) => {
 
     const amountInPaisa = Math.round(parseFloat(donorData.amount) * 100);
     const currency = donorData.currency || 'INR';
-    const orderReceipt = 'rcpt_' + Date.now().toString().slice(-8);
+    const orderReceipt = 'rcpt_hope_' + Date.now().toString().slice(-8);
 
     if (razorpayInstance) {
-      // Real Razorpay Order Creation
       const options = {
         amount: amountInPaisa,
         currency: currency,
         receipt: orderReceipt,
         notes: {
-          donor_name: donorData.donor_name,
+          campaign: EKHUM_CONFIG.campaignSlug,
+          api_key: EKHUM_CONFIG.apiKey,
+          donor_name: donorData.name || donorData.donor_name,
           email: donorData.email,
-          pan: donorData.pan_number,
-          cause: donorData.cause || 'General Fund'
+          pan: donorData.taxId || donorData.pan_number,
+          cause: donorData.cause || 'Hope Fund Initiative'
         }
       };
 
@@ -118,87 +141,65 @@ app.post('/api/donations/create-order', async (req, res) => {
         orderId: order.id,
         amount: order.amount,
         currency: order.currency,
-        key: razorpayKeyId
+        key: razorpayKeyId,
+        gateway: EKHUM_CONFIG.primaryGateway,
+        fallbackGateway: EKHUM_CONFIG.fallbackGateway
       });
     } else {
-      // Simulation / Direct Gateway Sandbox Mode
-      const simulatedOrderId = 'order_sim_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
+      const simulatedOrderId = 'order_sim_hope_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
       return res.json({
         success: true,
         isSimulation: true,
         orderId: simulatedOrderId,
         amount: amountInPaisa,
         currency: currency,
-        key: razorpayKeyId
+        key: razorpayKeyId,
+        gateway: EKHUM_CONFIG.primaryGateway,
+        fallbackGateway: EKHUM_CONFIG.fallbackGateway
       });
     }
   } catch (error) {
     console.error('Error creating donation order:', error);
-    res.status(500).json({ success: false, message: 'Failed to create donation payment order.' });
+    res.status(500).json({ success: false, message: 'Failed to create payment order.' });
   }
 });
 
-// API Route: Verify Payment and Record Donor Entry
-app.post('/api/donations/verify', async (req, res) => {
+// API Route: EKhum Relay / Verify Payment & Record KYC Entry
+app.post(['/api/donations/verify', '/api/v1/external/donations/initiate'], async (req, res) => {
   try {
-    const {
-      donor_name,
-      email,
-      phone,
-      address,
-      age,
-      pan_number,
-      amount,
-      cause,
-      payment_id,
-      order_id,
-      signature
-    } = req.body;
+    const payload = req.body;
+    const errors = validateDonorData(payload);
 
-    const validationErrors = validateDonorData(req.body);
-    if (validationErrors.length > 0) {
-      return res.status(400).json({ success: false, errors: validationErrors });
+    if (errors.length > 0) {
+      return res.status(400).json({ success: false, errors });
     }
 
-    // Verify Payment Signature if live Razorpay keys are provided
-    let verified = true;
-    if (razorpayInstance && razorpayKeySecret && signature && !order_id.startsWith('order_sim_')) {
+    // Attempt optional signature verification if live Razorpay credentials exist
+    if (razorpayInstance && razorpayKeySecret && payload.signature && payload.order_id && !payload.order_id.startsWith('order_sim_')) {
       const generated_signature = crypto
         .createHmac('sha256', razorpayKeySecret)
-        .update(order_id + '|' + payment_id)
+        .update(payload.order_id + '|' + payload.payment_id)
         .digest('hex');
 
-      if (generated_signature !== signature) {
-        verified = false;
-        return res.status(400).json({ success: false, message: 'Payment verification failed. Invalid signature.' });
+      if (generated_signature !== payload.signature) {
+        return res.status(400).json({ success: false, message: 'Payment signature verification failed.' });
       }
     }
 
-    // Store Donor Record in SQLite / Data Layer
-    const donationRecord = await dbLayer.createDonation({
-      donor_name,
-      email,
-      phone,
-      address,
-      age,
-      pan_number,
-      amount,
-      cause: cause || 'General Hope Fund',
-      payment_id: payment_id || 'pay_sim_' + Date.now(),
-      order_id: order_id || 'ord_sim_' + Date.now(),
-      signature: signature || 'simulated_valid_signature',
-      status: 'completed'
-    });
+    // Save full KYC and CRM data layer in SQLite
+    const donationRecord = await dbLayer.createDonation(payload);
 
     res.json({
       success: true,
-      message: 'Thank you! Your donation to FOR THE HOPE has been processed successfully.',
+      message: 'Thank you for supporting Hope Fund!',
+      receiptNumber: donationRecord.receipt_80g_no,
+      urn80G: EKHUM_CONFIG.urn80G,
       donation: donationRecord,
       receiptUrl: `/api/donations/receipt/${donationRecord.receipt_80g_no}`
     });
   } catch (error) {
     console.error('Error verifying payment:', error);
-    res.status(500).json({ success: false, message: 'Failed to process donor verification.' });
+    res.status(500).json({ success: false, message: 'Failed to record donation verification.' });
   }
 });
 
@@ -207,7 +208,6 @@ app.get('/api/donations', async (req, res) => {
   try {
     const limit = parseInt(req.query.limit, 10) || 20;
     const records = await dbLayer.getAllDonations(limit);
-    // Sanitize records for public display (mask sensitive PAN & full address for privacy)
     const sanitized = records.map(r => ({
       id: r.id,
       donation_id: r.donation_id,
@@ -215,10 +215,11 @@ app.get('/api/donations', async (req, res) => {
       amount: r.amount,
       currency: r.currency,
       cause: r.cause,
+      urn_80g: r.urn_80g,
       receipt_80g_no: r.receipt_80g_no,
       created_at: r.created_at,
       masked_email: r.email ? r.email.replace(/(.{2})(.*)(?=@)/, '$1***') : '***',
-      masked_pan: r.pan_number ? r.pan_number.slice(0, 2) + '****' + r.pan_number.slice(-2) : '*****'
+      masked_pan: r.tax_id ? r.tax_id.slice(0, 2) + '****' + r.tax_id.slice(-2) : '*****'
     }));
     res.json({ success: true, count: sanitized.length, donations: sanitized });
   } catch (error) {
@@ -230,9 +231,9 @@ app.get('/api/donations', async (req, res) => {
 app.get('/api/donations/stats', async (req, res) => {
   try {
     const stats = await dbLayer.getStats();
-    res.json({ success: true, stats });
+    res.json({ success: true, stats, urn80G: EKHUM_CONFIG.urn80G });
   } catch (error) {
-    res.status(500).json({ success: false, message: 'Could not calculate impact statistics.' });
+    res.status(500).json({ success: false, message: 'Could not calculate statistics.' });
   }
 });
 
@@ -251,21 +252,26 @@ app.get('/api/donations/receipt/:receiptNo', async (req, res) => {
       success: true,
       receipt: {
         receiptNumber: donation.receipt_80g_no,
-        ngoName: 'FOR THE HOPE FOUNDATION',
-        ngoRegistrationNo: '80G/REG/HOPE/2026/0942',
-        panNgo: 'AAATF9842H',
+        ngoName: 'Hope Fund',
+        urn80G: 'AAATC1234F2180G1',
+        campaignSlug: donation.campaign_slug,
+        donorTitle: donation.title,
         donorName: donation.donor_name,
         donorEmail: donation.email,
         donorPhone: donation.phone,
-        donorAddress: donation.address,
-        donorAge: donation.age,
-        donorPan: donation.pan_number,
+        donorAltPhone: donation.alt_phone,
+        donorPan: donation.tax_id,
+        donorDob: donation.dob,
+        donorGender: donation.gender,
+        donorAddress: `${donation.address}, ${donation.street_address_2 || ''}, ${donation.city || ''}, ${donation.state || ''} - ${donation.pincode || ''}, ${donation.country}`,
         amount: donation.amount,
         currency: donation.currency,
+        isMonthly: Boolean(donation.is_monthly),
         cause: donation.cause,
+        gateway: donation.gateway,
         paymentId: donation.payment_id,
         date: donation.created_at,
-        taxDeductionPercent: '50% under Section 80G of Income Tax Act 1961'
+        taxDeductionPercent: '50% Tax Exemption under Statutory 80G URN: AAATC1234F2180G1'
       }
     });
   } catch (error) {
@@ -273,7 +279,7 @@ app.get('/api/donations/receipt/:receiptNo', async (req, res) => {
   }
 });
 
-// Catch-all to serve index.html for single page layout
+// Catch-all
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
@@ -281,8 +287,9 @@ app.get('*', (req, res) => {
 // Start Server
 app.listen(PORT, () => {
   console.log(`====================================================`);
-  console.log(`🌟 FOR THE HOPE NGO Platform is running on port ${PORT}`);
-  console.log(`🌐 Public Landing Page: http://localhost:${PORT}`);
-  console.log(`💳 Razorpay Integration Mode: ${razorpayInstance ? 'LIVE API KEY CONNECTED' : 'SANDBOX / SIMULATED MODE'}`);
+  console.log(`🌟 Hope Fund — EKhum Landing Page API running on port ${PORT}`);
+  console.log(`🔑 Campaign API Key: ${EKHUM_CONFIG.apiKey}`);
+  console.log(`📜 Statutory 80G URN: ${EKHUM_CONFIG.urn80G}`);
+  console.log(`💳 Aligned Gateway Rails: Primary [${EKHUM_CONFIG.primaryGateway.toUpperCase()}] -> Failover [${EKHUM_CONFIG.fallbackGateway.toUpperCase()}]`);
   console.log(`====================================================`);
 });
