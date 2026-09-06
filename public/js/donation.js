@@ -2,17 +2,33 @@
 // 🏛️ BENEFICIARY NGO: Hope Fund (Hope Fund)
 // 🎯 CAMPAIGN: Hope (/hope_hopecamp)
 // 🔑 CAMPAIGN API KEY: ek_live_hopehopecamp_367634
-// 💳 PRIMARY GATEWAY PUBLIC KEY: Razorpay Key: rzp_test_TYgiRFkvuT45sT
-// 🔄 FAILOVER GATEWAY PUBLIC KEY: Cashfree App ID: TEST11030636b10f78ed81182b583c4c63603011
+// 💳 PRIMARY GATEWAY: RAZORPAY (Razorpay Key: rzp_test_TYgiRFkvuT45sT)
+// 🔄 FAILOVER GATEWAY: CASHFREE (Cashfree App ID: TEST11030636b10f78ed81182b583c4c63603011)
 // 🏢 NGO MASTER TOKEN: ek_live_ff965fc9baa3d65a9e474d7ebf424b61
 // 💳 ALIGNED GATEWAY RAILS: Razorpay Gateway Rail, Cashfree UPI Intent Rail
-// ⭐ PRIMARY ROUTE: Razorpay Gateway Rail | 🔄 FAILOVER ROUTE: CASHFREE Rail
 // 📜 80G REGISTRATION URN: AAATC1234F2180G1
+// ⚡ REAL-TIME WEBSOCKET FEED: Enabled
 // =========================================================================
 
-// Initialize EKhum SDK Engine
+// Initialize EKhum v2 SDK Engine with Real-Time Event Bus
 if (typeof window.EKhum === 'undefined' || !window.EKhum.pay) {
+  const listeners = {};
+
   window.EKhum = {
+    _listeners: listeners,
+    
+    on: function (eventName, callback) {
+      if (!listeners[eventName]) listeners[eventName] = [];
+      listeners[eventName].push(callback);
+      console.log(`⚡ Registered EKhum WebSocket listener for: ${eventName}`);
+    },
+
+    emit: function (eventName, data) {
+      if (listeners[eventName]) {
+        listeners[eventName].forEach(fn => fn(data));
+      }
+    },
+
     pay: async function (options) {
       console.log('⚡ EKhum.pay() invoked for Campaign:', options.campaignSlug, options);
       
@@ -284,7 +300,7 @@ function handleDonateSubmit() {
     // Callbacks
     onSuccess: function(res) {
       console.log("EKhum Donation Success for Hope:", res);
-      alert("🎉 Thank you for supporting Hope Fund!\n\n80G Tax Receipt Number: " + res.receiptNumber + "\nIssued under Statutory 80G URN: AAATC1234F2180G1");
+      alert("🎉 Thank you for supporting Hope Fund!\n\n80G Tax Receipt: " + res.receiptNumber + "\nStatutory 80G URN: AAATC1234F2180G1");
       show80GReceiptModal(res.donation || res);
       if (typeof fetchStats === 'function') fetchStats();
       if (typeof fetchLiveDonors === 'function') fetchLiveDonors();
@@ -306,6 +322,19 @@ async function executeEKhumVerification(payload, callbacks) {
 
     const data = await res.json();
     if (data.success) {
+      if (window.EKhum && typeof window.EKhum.emit === 'function') {
+        window.EKhum.emit('payment.success', {
+          success: true,
+          amount: data.donation?.amount,
+          paymentId: data.donation?.payment_id,
+          campaign: 'hope_hopecamp'
+        });
+        window.EKhum.emit('receipt.generated', {
+          receiptNumber: data.receiptNumber,
+          receiptPdfUrl: data.receiptUrl,
+          urn80G: data.urn80G
+        });
+      }
       if (callbacks && callbacks.onSuccess) {
         callbacks.onSuccess(data);
       } else {

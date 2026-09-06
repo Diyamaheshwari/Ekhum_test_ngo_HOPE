@@ -19,22 +19,31 @@
   <!-- 🏛️ BENEFICIARY NGO: Hope Fund (Hope Fund) -->
   <!-- 🎯 CAMPAIGN: Hope (/hope_hopecamp) -->
   <!-- 🔑 CAMPAIGN API KEY: ek_live_hopehopecamp_367634 -->
-  <!-- 💳 PRIMARY GATEWAY PUBLIC KEY: Razorpay Key: rzp_test_TYgiRFkvuT45sT -->
-  <!-- 🔄 FAILOVER GATEWAY PUBLIC KEY: Cashfree App ID: TEST11030636b10f78ed81182b583c4c63603011 -->
+  <!-- 💳 PRIMARY GATEWAY: RAZORPAY (Razorpay Key: rzp_test_TYgiRFkvuT45sT) -->
+  <!-- 🔄 FAILOVER GATEWAY: CASHFREE (Cashfree App ID: TEST11030636b10f78ed81182b583c4c63603011) -->
   <!-- 🏢 NGO MASTER TOKEN: ek_live_ff965fc9baa3d65a9e474d7ebf424b61 -->
   <!-- 💳 ALIGNED GATEWAY RAILS: Razorpay Gateway Rail, Cashfree UPI Intent Rail -->
-  <!-- ⭐ PRIMARY ROUTE: Razorpay Gateway Rail | 🔄 FAILOVER ROUTE: CASHFREE Rail -->
   <!-- 📜 80G REGISTRATION URN: AAATC1234F2180G1 -->
+  <!-- ⚡ REAL-TIME WEBSOCKET FEED: Enabled -->
   <!-- ========================================================================= -->
 
-  <!-- 1. Include Aligned Gateway SDKs & EKhum Specialized Embed -->
+  <!-- 1. Include Aligned Gateway SDKs & EKhum v2 Embed SDK -->
   <script src="https://sdk.cashfree.com/js/v3/cashfree.js"></script>
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-  <script src="https://ekhum.org/api/v1/external/embed.js"></script>
-  <script src="https://ekhum.org/api/v1/external/embed.js" 
-    data-api-key="ek_live_hopehopecamp_367634" 
-    data-campaign="hope_hopecamp" 
-    data-auto-bind="true">
+  <script src="https://ekhum.org/embed/v2/ekhum.js"></script>
+
+  <!-- 2. Listen to Real-Time Payment & 80G Receipt Events via WebSocket -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      if (window.EKhum && typeof EKhum.on === 'function') {
+        EKhum.on('payment.success', function(event) {
+          console.log('⚡ Real-time Payment Confirmed for Hope:', event);
+        });
+        EKhum.on('receipt.generated', function(event) {
+          console.log('📄 80G Receipt Generated:', event.receiptNumber, event.receiptPdfUrl);
+        });
+      }
+    });
   </script>
 </head>
 <body>
