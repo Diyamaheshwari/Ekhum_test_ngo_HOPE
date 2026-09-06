@@ -648,6 +648,33 @@
     </div>
   </div>
 
+  <!-- Modal: EKhum Gateway Interactive Modal -->
+  <div class="modal-backdrop d-none" id="paySimModal">
+    <div class="modal-card modal-sm text-center">
+      <div class="sim-gateway-header">
+        <div class="razorpay-logo"><i class="fa-solid fa-credit-card"></i> EKhum Gateway Rails</div>
+        <p>Primary: Razorpay Rail | Failover: Cashfree Rail</p>
+      </div>
+
+      <div class="sim-body" style="padding: 20px 0;">
+        <p>Donation Amount: <strong id="simAmtText" style="color: #10B981; font-size: 1.4rem;">₹1,000</strong></p>
+        <p>Donor: <strong id="simNameText" style="color: #0F172A;">Aarav Sharma</strong></p>
+        <p class="sim-note" style="font-size: 0.85rem; color: #64748B; margin: 15px 0;">
+          Simulating authorized EKhum gateway transaction completion &amp; CRM storage for Hope Fund (80G URN: AAATC1234F2180G1).
+        </p>
+
+        <div class="sim-actions" style="display: flex; flex-direction: column; gap: 10px;">
+          <button class="btn btn-success btn-block btn-lg" onclick="confirmSimulatedPayment()">
+            <i class="fa-solid fa-circle-check"></i> Complete Payment
+          </button>
+          <button class="btn btn-danger btn-block" onclick="cancelSimulatedPayment()">
+            Cancel Payment
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Modal: Admin CRM Data Layer Viewer -->
   <div class="modal-backdrop d-none" id="adminModal">
     <div class="modal-card modal-lg">

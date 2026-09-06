@@ -135,8 +135,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // EKhum Gateway Interactive Popup Modal
 function openEKhumGatewayModal(payload, orderRes, options) {
-  document.getElementById('simAmtText').textContent = `₹${parseFloat(payload.amount).toLocaleString('en-IN')}`;
-  document.getElementById('simNameText').textContent = payload.name || (payload.firstName + ' ' + payload.lastName);
+  const amtEl = document.getElementById('simAmtText');
+  if (amtEl) amtEl.textContent = `₹${parseFloat(payload.amount).toLocaleString('en-IN')}`;
+  
+  const nameEl = document.getElementById('simNameText');
+  if (nameEl) nameEl.textContent = payload.name || (payload.firstName + ' ' + payload.lastName);
   
   const modal = document.getElementById('paySimModal');
   if (modal) {
@@ -337,25 +340,47 @@ async function executeEKhumVerification(payload, callbacks) {
   }
 }
 
-// Display Receipt Modal
+// Display Receipt Modal with safe element access
 function show80GReceiptModal(donation) {
   if (!donation) return;
-  document.getElementById('recNumber').textContent = donation.receipt_80g_no || donation.receiptNumber || 'HOPE-80G-984201';
-  document.getElementById('recDate').textContent = `Date: ${new Date(donation.created_at || Date.now()).toLocaleDateString('en-IN')}`;
-  document.getElementById('recDonorName').textContent = donation.donor_name || donation.name;
-  document.getElementById('recDonorPan').textContent = donation.tax_id || donation.pan_number || donation.taxId;
-  document.getElementById('recDonorContact').textContent = `${donation.email} | ${donation.phone}`;
-  document.getElementById('recDonorDob').textContent = `${donation.dob || '1988-04-15'} (${donation.gender || 'Male'})`;
-  document.getElementById('recDonorAddress').textContent = `${donation.address}, ${donation.city || ''}, ${donation.state || ''} - ${donation.pincode || ''}`;
-  document.getElementById('recCause').textContent = `${donation.cause || 'Hope Fund'} / ${donation.gateway || 'Razorpay'} Rail`;
-  document.getElementById('recPaymentId').textContent = donation.payment_id || 'PAY_SIM_987654';
-  document.getElementById('recAmount').textContent = `₹ ${parseFloat(donation.amount).toLocaleString('en-IN')}.00`;
+  
+  const recNumber = document.getElementById('recNumber');
+  if (recNumber) recNumber.textContent = donation.receipt_80g_no || donation.receiptNumber || 'HOPE-80G-984201';
+  
+  const recDate = document.getElementById('recDate');
+  if (recDate) recDate.textContent = `Date: ${new Date(donation.created_at || Date.now()).toLocaleDateString('en-IN')}`;
 
-  document.getElementById('receiptModal').classList.remove('d-none');
+  const recDonorName = document.getElementById('recDonorName');
+  if (recDonorName) recDonorName.textContent = donation.donor_name || donation.name;
+
+  const recDonorPan = document.getElementById('recDonorPan');
+  if (recDonorPan) recDonorPan.textContent = donation.tax_id || donation.pan_number || donation.taxId;
+
+  const recDonorContact = document.getElementById('recDonorContact');
+  if (recDonorContact) recDonorContact.textContent = `${donation.email} | ${donation.phone}`;
+
+  const recDonorDob = document.getElementById('recDonorDob');
+  if (recDonorDob) recDonorDob.textContent = `${donation.dob || '1988-04-15'} (${donation.gender || 'Male'})`;
+
+  const recDonorAddress = document.getElementById('recDonorAddress');
+  if (recDonorAddress) recDonorAddress.textContent = `${donation.address}, ${donation.city || ''}, ${donation.state || ''} - ${donation.pincode || ''}`;
+
+  const recCause = document.getElementById('recCause');
+  if (recCause) recCause.textContent = `${donation.cause || 'Hope Fund'} / ${donation.gateway || 'Razorpay'} Rail`;
+
+  const recPaymentId = document.getElementById('recPaymentId');
+  if (recPaymentId) recPaymentId.textContent = donation.payment_id || 'PAY_SIM_987654';
+
+  const recAmount = document.getElementById('recAmount');
+  if (recAmount) recAmount.textContent = `₹ ${parseFloat(donation.amount).toLocaleString('en-IN')}.00`;
+
+  const modal = document.getElementById('receiptModal');
+  if (modal) modal.classList.remove('d-none');
 }
 
 function closeReceiptModal() {
-  document.getElementById('receiptModal').classList.add('d-none');
+  const modal = document.getElementById('receiptModal');
+  if (modal) modal.classList.add('d-none');
 }
 
 function printReceipt() {
