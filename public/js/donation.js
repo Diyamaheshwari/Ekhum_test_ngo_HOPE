@@ -1,7 +1,6 @@
 // EKhum External Landing Page API & Embed Integration Engine
-let pendingOrderData = null;
 
-// Initialize EKhum SDK Engine
+// Initialize EKhum SDK Engine if external embed.js is loading or offline
 if (typeof window.EKhum === 'undefined') {
   window.EKhum = {
     pay: async function (options) {
@@ -15,11 +14,11 @@ if (typeof window.EKhum === 'undefined') {
       const origText = submitBtn ? submitBtn.innerHTML : '';
       if (submitBtn) {
         submitBtn.disabled = true;
-        submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Triggering Payment Gateway...';
+        submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Initiating EKhum Gateway...';
       }
 
       try {
-        // Step 1: Create Order via Backend API
+        // Step 1: Request Order Creation via Backend
         const res = await fetch('/api/donations/create-order', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -37,7 +36,7 @@ if (typeof window.EKhum === 'undefined') {
         const rzpKey = orderRes.key || 'rzp_test_1DP5mmOlF5G5ag';
         const rzpAmount = orderRes.amount || Math.round(parseFloat(payload.amount) * 100);
 
-        // Step 2: Directly trigger the official Razorpay Checkout SDK Gateway Modal
+        // Step 2: Trigger Razorpay Checkout SDK Modal
         if (typeof Razorpay !== 'undefined') {
           const rzpOptions = {
             key: rzpKey,
@@ -47,7 +46,7 @@ if (typeof window.EKhum === 'undefined') {
             description: `Campaign: Hope (/hope_hopecamp)`,
             order_id: orderRes.orderId,
             prefill: {
-              name: payload.name || payload.donor_name,
+              name: payload.name || payload.firstName + ' ' + payload.lastName,
               email: payload.email,
               contact: payload.phone
             },
@@ -75,8 +74,7 @@ if (typeof window.EKhum === 'undefined') {
           const rzp = new Razorpay(rzpOptions);
           rzp.open();
         } else {
-          // Fallback if Razorpay SDK script failed to load
-          alert('Razorpay Gateway SDK is loading. Please try again.');
+          alert('Razorpay Gateway SDK script loading. Please try again.');
         }
       } catch (err) {
         if (options.onError) options.onError({ error: err.message });
@@ -137,7 +135,7 @@ function validateEKhumForm() {
   const pan = document.getElementById('donor_pan')?.value.trim().toUpperCase();
   const address = document.getElementById('donor_address')?.value.trim();
   const pincode = document.getElementById('donor_pincode')?.value.trim();
-  const amount = document.getElementById('selectedAmount')?.value || document.getElementById('donation_amount')?.value;
+  const amount = document.getElementById('donation_amount')?.value || document.getElementById('selectedAmount')?.value;
 
   if (!firstName || !lastName) {
     errors.push('First Name and Last Name are required.');
@@ -171,11 +169,10 @@ function validateEKhumForm() {
   return errors;
 }
 
-// Triggered by Donate Button
+// 2. Call EKhum.pay() on your Submit/Donate button click
 function handleDonateSubmit() {
   const alertBox = document.getElementById('formAlertBox');
-  alertBox.classList.add('d-none');
-  alertBox.innerHTML = '';
+  if (alertBox) alertBox.classList.add('d-none');
 
   const validationErrors = validateEKhumForm();
   if (validationErrors.length > 0) {
@@ -186,50 +183,63 @@ function handleDonateSubmit() {
     return;
   }
 
-  const firstName = document.getElementById('donor_first_name')?.value.trim() || 'Aarav';
-  const lastName = document.getElementById('donor_last_name')?.value.trim() || 'Sharma';
-  const fullName = `${firstName} ${lastName}`.trim();
-  const amtVal = parseFloat(document.getElementById('selectedAmount')?.value || document.getElementById('donation_amount')?.value || 1000);
-
-  // Invoke EKhum.pay() which directly triggers Razorpay Checkout SDK Modal
   EKhum.pay({
+    // 🔑 Specific Campaign Credentials
     apiKey: "ek_live_hopehopecamp_367634",
     campaignSlug: "hope_hopecamp",
-    gateway: "razorpay",
-    fallbackGateway: "cashfree",
+    
+    // 💳 Multi-Gateway Smart Failover Engine
+    gateway: "razorpay", // Primary Aligned Rail (Razorpay Gateway Rail)
+    fallbackGateway: "cashfree", // Automatic Failover Rail
     enableAutoFailover: true,
-    amount: amtVal,
+    
+    // 💰 Donation & Frequency Data Layer
+    amount: document.getElementById('donation_amount')?.value || 1000,
     currency: "INR",
-    isMonthly: document.getElementById('is_monthly')?.checked || false,
-    title: document.getElementById('donor_title')?.value || "Mr.",
-    firstName: firstName,
-    lastName: lastName,
-    name: fullName,
+    isMonthly: document.getElementById('is_monthly')?.checked || false, // Set true for Recurring Mandates
+    
+    // 👤 Full Contact KYC Layer (Upserted into Hope Fund's CRM)
+    title: document.getElementById('donor_title')?.value || "Mr.", // Mr., Mrs., Ms., Dr., etc.
+    firstName: document.getElementById('donor_first_name')?.value || "Aarav",
+    lastName: document.getElementById('donor_last_name')?.value || "Sharma",
+    name: document.getElementById('donor_name')?.value || "Aarav Sharma",
     email: document.getElementById('donor_email')?.value || "aarav.sharma@example.com",
     phone: document.getElementById('donor_phone')?.value || "+919876543210",
     altPhone: document.getElementById('donor_alt_phone')?.value || "",
-    taxId: (document.getElementById('donor_pan')?.value || "ABCDE1234F").toUpperCase(),
-    dob: document.getElementById('donor_dob')?.value || "1988-04-15",
+    taxId: document.getElementById('donor_pan')?.value || "ABCDE1234F", // 10-digit PAN (KYC Uppercased)
+    dob: document.getElementById('donor_dob')?.value || "1988-04-15", // YYYY-MM-DD
     gender: document.getElementById('donor_gender')?.value || "Male",
-    donorType: "Individual",
+    donorType: "Individual", // 'Individual' | 'Corporate' | 'Trust'
     citizenship: "Indian",
+    
+    // 📍 Full Address Data Layer (PIN code auto-resolves City & State)
     address: document.getElementById('donor_address')?.value || "Flat 402, Lotus Heights, MG Road",
     street_address_2: document.getElementById('donor_address_line_2')?.value || "Near Metro Station",
-    pincode: document.getElementById('donor_pincode')?.value || "400001",
+    pincode: document.getElementById('donor_pincode')?.value || "400001", // 6-digit Indian PIN
     city: document.getElementById('donor_city')?.value || "Mumbai",
     state: document.getElementById('donor_state')?.value || "Maharashtra",
     country: "India",
+
+    // 📜 Statutory 80G Tax Exemption & Form 10BD Flags (Issued by Hope Fund)
     is80GRequested: true,
-    panHolderName: document.getElementById('pan_holder_name')?.value || fullName,
+    panHolderName: document.getElementById('pan_holder_name')?.value || "Aarav Sharma",
     certificateLanguage: "en",
     isAnonymous: false,
+
+    // 🛡️ DPDP Act Opt-In Consents
     consentEmail: document.getElementById('consent_email')?.checked ?? true,
     consentWhatsapp: document.getElementById('consent_whatsapp')?.checked ?? true,
     consentSms: document.getElementById('consent_sms')?.checked ?? true,
-    preferredChannel: "both",
+    preferredChannel: "both", // 'email' | 'whatsapp' | 'sms' | 'both'
+
+    // 📣 Marketing Attribution & Campaign Telemetry
     utm_source: new URLSearchParams(window.location.search).get('utm_source') || "google_ads",
     utm_medium: new URLSearchParams(window.location.search).get('utm_medium') || "cpc",
     utm_campaign: new URLSearchParams(window.location.search).get('utm_campaign') || "hope_hopecamp",
+    fundraiser_id: new URLSearchParams(window.location.search).get('fundraiser_id') || undefined,
+    volunteer_code: new URLSearchParams(window.location.search).get('vol_code') || undefined,
+
+    // 💬 Donor Comments & Tailored Campaign Custom Fields
     comments: document.getElementById('donor_comments')?.value || "Donation in support of Hope for Hope Fund",
     customFormData: {
       campaign_title: "Hope",
@@ -238,15 +248,17 @@ function handleDonateSubmit() {
       source_landing_page: window.location.href,
       referrer: document.referrer
     },
+
+    // Callbacks
     onSuccess: function(res) {
-      console.log("EKhum Donation Success for Hope Fund:", res);
+      console.log("EKhum Donation Success for Hope:", res);
       show80GReceiptModal(res.donation || res);
       if (typeof fetchStats === 'function') fetchStats();
       if (typeof fetchLiveDonors === 'function') fetchLiveDonors();
     },
     onError: function(err) {
       console.error("EKhum Donation Error:", err);
-      alert("Donation to Hope Fund Failed: " + (err.error || err.message || "Transaction cancelled"));
+      alert("Donation to Hope Failed: " + (err.error || err.message || "Transaction cancelled"));
     }
   });
 }

@@ -15,9 +15,20 @@
   <!-- Custom CSS -->
   <link rel="stylesheet" href="css/style.css">
 
-  <!-- Gateway & EKhum Embed SDKs -->
+  <!-- ========================================================================= -->
+  <!-- 🏛️ BENEFICIARY NGO: Hope Fund (Hope Fund) -->
+  <!-- 🎯 CAMPAIGN: Hope (/hope_hopecamp) -->
+  <!-- 🔑 CAMPAIGN API KEY: ek_live_hopehopecamp_367634 -->
+  <!-- 🏢 NGO MASTER TOKEN: ek_live_org_hope_fund -->
+  <!-- 💳 ALIGNED GATEWAY RAILS: Razorpay Gateway Rail, Cashfree UPI Intent Rail -->
+  <!-- ⭐ PRIMARY ROUTE: Razorpay Gateway Rail | 🔄 FAILOVER ROUTE: CASHFREE Rail -->
+  <!-- 📜 80G REGISTRATION URN: AAATC1234F2180G1 -->
+  <!-- ========================================================================= -->
+
+  <!-- 1. Include Aligned Gateway SDKs & EKhum Specialized Embed -->
   <script src="https://sdk.cashfree.com/js/v3/cashfree.js"></script>
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  <script src="http://localhost:5000/api/v1/external/embed.js"></script>
   <script src="https://ekhum.org/api/v1/external/embed.js"></script>
 </head>
 <body>
@@ -364,11 +375,11 @@
                 </div>
                 <div class="form-group col-4">
                   <label class="form-label" for="donor_first_name">First Name <span class="required">*</span></label>
-                  <input type="text" id="donor_first_name" class="form-input" placeholder="Aarav" required>
+                  <input type="text" id="donor_first_name" class="form-input" placeholder="Aarav" value="Aarav" required>
                 </div>
                 <div class="form-group col-5">
                   <label class="form-label" for="donor_last_name">Last Name <span class="required">*</span></label>
-                  <input type="text" id="donor_last_name" class="form-input" placeholder="Sharma" required>
+                  <input type="text" id="donor_last_name" class="form-input" placeholder="Sharma" value="Sharma" required>
                 </div>
               </div>
 
@@ -379,11 +390,11 @@
               <div class="form-row">
                 <div class="form-group col-6">
                   <label class="form-label" for="donor_email"><i class="fa-solid fa-envelope"></i> Email Address <span class="required">*</span></label>
-                  <input type="email" id="donor_email" class="form-input" placeholder="aarav.sharma@example.com" required>
+                  <input type="email" id="donor_email" class="form-input" placeholder="aarav.sharma@example.com" value="aarav.sharma@example.com" required>
                 </div>
                 <div class="form-group col-6">
                   <label class="form-label" for="donor_phone"><i class="fa-solid fa-phone"></i> Contact Phone <span class="required">*</span></label>
-                  <input type="tel" id="donor_phone" class="form-input" placeholder="+919876543210" required>
+                  <input type="tel" id="donor_phone" class="form-input" placeholder="+919876543210" value="+919876543210" required>
                 </div>
               </div>
 
@@ -396,11 +407,11 @@
               <div class="form-row">
                 <div class="form-group col-6">
                   <label class="form-label" for="donor_pan"><i class="fa-solid fa-id-card"></i> 10-Digit PAN <span class="required">*</span></label>
-                  <input type="text" id="donor_pan" class="form-input uppercase-input" placeholder="ABCDE1234F" required maxlength="10">
+                  <input type="text" id="donor_pan" class="form-input uppercase-input" placeholder="ABCDE1234F" value="ABCDE1234F" required maxlength="10">
                 </div>
                 <div class="form-group col-6">
                   <label class="form-label" for="pan_holder_name">PAN Holder Name <span class="required">*</span></label>
-                  <input type="text" id="pan_holder_name" class="form-input" placeholder="Name on PAN Card" required>
+                  <input type="text" id="pan_holder_name" class="form-input" placeholder="Name on PAN Card" value="Aarav Sharma" required>
                 </div>
               </div>
 
@@ -413,7 +424,7 @@
                 <div class="form-group col-6">
                   <label class="form-label" for="donor_gender">Gender</label>
                   <select id="donor_gender" class="form-input">
-                    <option value="Male">Male</option>
+                    <option value="Male" selected>Male</option>
                     <option value="Female">Female</option>
                     <option value="Other">Other</option>
                   </select>
@@ -425,27 +436,27 @@
               <!-- Address Line 1 & Line 2 -->
               <div class="form-group">
                 <label class="form-label" for="donor_address"><i class="fa-solid fa-location-dot"></i> Address Line 1 <span class="required">*</span></label>
-                <input type="text" id="donor_address" class="form-input" placeholder="Flat 402, Lotus Heights, MG Road" required>
+                <input type="text" id="donor_address" class="form-input" placeholder="Flat 402, Lotus Heights, MG Road" value="Flat 402, Lotus Heights, MG Road" required>
               </div>
 
               <div class="form-group">
                 <label class="form-label" for="donor_address_line_2">Address Line 2 (Landmark)</label>
-                <input type="text" id="donor_address_line_2" class="form-input" placeholder="Near Metro Station">
+                <input type="text" id="donor_address_line_2" class="form-input" placeholder="Near Metro Station" value="Near Metro Station">
               </div>
 
               <!-- Pincode, City & State -->
               <div class="form-row">
                 <div class="form-group col-4">
                   <label class="form-label" for="donor_pincode">Pincode <span class="required">*</span></label>
-                  <input type="text" id="donor_pincode" class="form-input" placeholder="400001" required maxlength="6">
+                  <input type="text" id="donor_pincode" class="form-input" placeholder="400001" value="400001" required maxlength="6">
                 </div>
                 <div class="form-group col-4">
                   <label class="form-label" for="donor_city">City <span class="required">*</span></label>
-                  <input type="text" id="donor_city" class="form-input" placeholder="Mumbai" required>
+                  <input type="text" id="donor_city" class="form-input" placeholder="Mumbai" value="Mumbai" required>
                 </div>
                 <div class="form-group col-4">
                   <label class="form-label" for="donor_state">State <span class="required">*</span></label>
-                  <input type="text" id="donor_state" class="form-input" placeholder="Maharashtra" required>
+                  <input type="text" id="donor_state" class="form-input" placeholder="Maharashtra" value="Maharashtra" required>
                 </div>
               </div>
 
@@ -468,7 +479,7 @@
               <!-- Comments & T-Shirt Size -->
               <div class="form-group">
                 <label class="form-label" for="donor_comments">Donor Comments / Message</label>
-                <textarea id="donor_comments" class="form-input form-textarea" rows="2" placeholder="Donation in support of Hope for Hope Fund"></textarea>
+                <textarea id="donor_comments" class="form-input form-textarea" rows="2" placeholder="Donation in support of Hope for Hope Fund">Donation in support of Hope for Hope Fund</textarea>
               </div>
 
               <div class="form-group">
@@ -673,27 +684,6 @@
       <div class="modal-footer">
         <button class="btn btn-secondary" onclick="closeAdminModal()">Close</button>
         <button class="btn btn-outline" onclick="loadAdminData()"><i class="fa-solid fa-arrows-rotate"></i> Refresh CRM Data</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Simulation Payment Gateway Modal -->
-  <div class="modal-backdrop d-none" id="paySimModal">
-    <div class="modal-card modal-sm text-center">
-      <div class="sim-gateway-header">
-        <div class="razorpay-logo"><i class="fa-solid fa-credit-card"></i> EKhum Multi-Gateway</div>
-        <p>Primary: Razorpay Rail | Failover: Cashfree Rail</p>
-      </div>
-
-      <div class="sim-body">
-        <p>Donation Amount: <strong id="simAmtText">₹1,000</strong></p>
-        <p>Donor: <strong id="simNameText">Aarav Sharma</strong></p>
-        <p class="sim-note">Simulating authorized EKhum gateway transaction completion & CRM storage for Hope Fund.</p>
-
-        <div class="sim-actions">
-          <button class="btn btn-success btn-block btn-lg" onclick="confirmSimulatedPayment()"><i class="fa-solid fa-check-circle"></i> Complete Payment</button>
-          <button class="btn btn-danger btn-block" onclick="cancelSimulatedPayment()">Cancel</button>
-        </div>
       </div>
     </div>
   </div>
