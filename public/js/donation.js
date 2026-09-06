@@ -2,7 +2,9 @@
 // 🏛️ BENEFICIARY NGO: Hope Fund (Hope Fund)
 // 🎯 CAMPAIGN: Hope (/hope_hopecamp)
 // 🔑 CAMPAIGN API KEY: ek_live_hopehopecamp_367634
-// 🏢 NGO MASTER TOKEN: ek_live_org_hope_fund
+// 💳 PRIMARY GATEWAY PUBLIC KEY: Razorpay Key: rzp_test_TYgiRFkvuT45sT
+// 🔄 FAILOVER GATEWAY PUBLIC KEY: Cashfree App ID: TEST11030636b10f78ed81182b583c4c63603011
+// 🏢 NGO MASTER TOKEN: ek_live_ff965fc9baa3d65a9e474d7ebf424b61
 // 💳 ALIGNED GATEWAY RAILS: Razorpay Gateway Rail, Cashfree UPI Intent Rail
 // ⭐ PRIMARY ROUTE: Razorpay Gateway Rail | 🔄 FAILOVER ROUTE: CASHFREE Rail
 // 📜 80G REGISTRATION URN: AAATC1234F2180G1
