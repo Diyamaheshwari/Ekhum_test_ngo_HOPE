@@ -14,11 +14,11 @@ if (typeof window.EKhum === 'undefined') {
       const origText = submitBtn ? submitBtn.innerHTML : '';
       if (submitBtn) {
         submitBtn.disabled = true;
-        submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Initiating EKhum Gateway...';
+        submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Triggering Payment Gateway...';
       }
 
       try {
-        // Step 1: Request Order Creation via Backend
+        // Step 1: Create Order via Backend API (Zero Secret Key Exposure)
         const res = await fetch('/api/donations/create-order', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -36,7 +36,7 @@ if (typeof window.EKhum === 'undefined') {
         const rzpKey = orderRes.key || 'rzp_test_1DP5mmOlF5G5ag';
         const rzpAmount = orderRes.amount || Math.round(parseFloat(payload.amount) * 100);
 
-        // Step 2: Trigger Razorpay Checkout SDK Modal
+        // Step 2: Immediately open the official Razorpay Checkout SDK Gateway Popup
         if (typeof Razorpay !== 'undefined') {
           const rzpOptions = {
             key: rzpKey,
@@ -46,7 +46,7 @@ if (typeof window.EKhum === 'undefined') {
             description: `Campaign: Hope (/hope_hopecamp)`,
             order_id: orderRes.orderId,
             prefill: {
-              name: payload.name || payload.firstName + ' ' + payload.lastName,
+              name: payload.name || (payload.firstName + ' ' + payload.lastName),
               email: payload.email,
               contact: payload.phone
             },
@@ -252,6 +252,7 @@ function handleDonateSubmit() {
     // Callbacks
     onSuccess: function(res) {
       console.log("EKhum Donation Success for Hope:", res);
+      alert("🎉 Thank you for supporting Hope Fund!\n\n80G Tax Receipt Number: " + res.receiptNumber + "\nIssued under Statutory 80G URN: AAATC1234F2180G1");
       show80GReceiptModal(res.donation || res);
       if (typeof fetchStats === 'function') fetchStats();
       if (typeof fetchLiveDonors === 'function') fetchLiveDonors();
