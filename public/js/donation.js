@@ -1,11 +1,18 @@
-// EKhum External Landing Page API & Embed Integration Engine
-let pendingOrderData = null;
+// =========================================================================
+// 🏛️ BENEFICIARY NGO: Hope Fund (Hope Fund)
+// 🎯 CAMPAIGN: Hope (/hope_hopecamp)
+// 🔑 CAMPAIGN API KEY: ek_live_hopehopecamp_367634
+// 🏢 NGO MASTER TOKEN: ek_live_org_hope_fund
+// 💳 ALIGNED GATEWAY RAILS: Razorpay Gateway Rail, Cashfree UPI Intent Rail
+// ⭐ PRIMARY ROUTE: Razorpay Gateway Rail | 🔄 FAILOVER ROUTE: CASHFREE Rail
+// 📜 80G REGISTRATION URN: AAATC1234F2180G1
+// =========================================================================
 
 // Initialize EKhum SDK Engine
-if (typeof window.EKhum === 'undefined') {
+if (typeof window.EKhum === 'undefined' || !window.EKhum.pay) {
   window.EKhum = {
     pay: async function (options) {
-      console.log('EKhum.pay() invoked for Campaign:', options.campaignSlug, options);
+      console.log('⚡ EKhum.pay() invoked for Campaign:', options.campaignSlug, options);
       
       const payload = { ...options };
       const alertBox = document.getElementById('formAlertBox');
@@ -15,7 +22,7 @@ if (typeof window.EKhum === 'undefined') {
       const origText = submitBtn ? submitBtn.innerHTML : '';
       if (submitBtn) {
         submitBtn.disabled = true;
-        submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Connecting EKhum Gateway...';
+        submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Connecting Payment Gateway...';
       }
 
       try {
@@ -34,36 +41,31 @@ if (typeof window.EKhum === 'undefined') {
           return;
         }
 
-        pendingOrderData = {
-          ...payload,
-          order_id: orderRes.orderId,
-          onSuccess: options.onSuccess,
-          onError: options.onError
-        };
-
-        const isRealKey = orderRes.key && !orderRes.key.includes('1DP5mmOlF5G5ag') && !orderRes.key.includes('mock') && !orderRes.isSimulation;
-
-        // Step 2: Gateway Trigger
-        if (isRealKey && typeof Razorpay !== 'undefined') {
+        // Step 2: Launch Official Razorpay Payment Gateway Modal
+        if (typeof Razorpay !== 'undefined') {
           const rzpOptions = {
-            key: orderRes.key,
+            key: orderRes.key || 'rzp_test_hope_fund',
             amount: orderRes.amount,
             currency: payload.currency || 'INR',
             name: 'Hope Fund',
             description: `Campaign: Hope (/hope_hopecamp)`,
-            order_id: orderRes.orderId,
+            order_id: orderRes.orderId && !orderRes.orderId.startsWith('order_sim_') ? orderRes.orderId : undefined,
             prefill: {
-              name: payload.name || (payload.firstName + ' ' + payload.lastName),
+              name: payload.name || (`${payload.firstName || ''} ${payload.lastName || ''}`.trim()),
               email: payload.email,
               contact: payload.phone
             },
             notes: {
-              pan: payload.taxId || payload.pan_number,
               campaign: 'hope_hopecamp',
+              pan: payload.taxId || payload.pan_number,
               urn_80g: 'AAATC1234F2180G1'
             },
             theme: { color: '#E05A47' },
             handler: async function (razorpayResponse) {
+              if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Verifying Payment...';
+              }
               await executeEKhumVerification({
                 ...payload,
                 payment_id: razorpayResponse.razorpay_payment_id || ('PAY_RZP_' + Date.now()),
@@ -74,17 +76,36 @@ if (typeof window.EKhum === 'undefined') {
             modal: {
               ondismiss: function () {
                 if (submitBtn) { submitBtn.disabled = false; submitBtn.innerHTML = origText; }
+                if (options.onError) options.onError({ error: 'Payment transaction cancelled by user' });
               }
             }
           };
 
           const rzp = new Razorpay(rzpOptions);
           rzp.open();
+        } else if (typeof Cashfree !== 'undefined') {
+          // Cashfree Failover Trigger
+          const cashfree = Cashfree({ mode: 'sandbox' });
+          cashfree.checkout({
+            paymentSessionId: orderRes.paymentSessionId || orderRes.orderId,
+            redirectTarget: '_modal'
+          }).then(async function (cfResult) {
+            if (cfResult.error) {
+              if (options.onError) options.onError({ error: cfResult.error.message });
+            } else {
+              await executeEKhumVerification({
+                ...payload,
+                payment_id: 'PAY_CF_' + Date.now(),
+                order_id: orderRes.orderId,
+                signature: 'SIG_CF_VERIFIED'
+              }, options);
+            }
+          });
         } else {
-          // Open Interactive EKhum Payment Gateway Checkout Window (Razorpay / Cashfree Rails)
-          openEKhumGatewayModal(payload, orderRes, options);
+          throw new Error('No Payment Gateway SDK (Razorpay/Cashfree) loaded on page.');
         }
       } catch (err) {
+        console.error('Payment Initialization Error:', err);
         if (options.onError) options.onError({ error: err.message });
       } finally {
         if (submitBtn) { submitBtn.disabled = false; submitBtn.innerHTML = origText; }
@@ -133,87 +154,6 @@ document.addEventListener('DOMContentLoaded', () => {
   if (lastNameInput) lastNameInput.addEventListener('input', syncFullName);
 });
 
-// EKhum Interactive Payment Gateway Checkout Window Functions
-function openEKhumGatewayModal(payload, orderRes, options) {
-  const formattedAmt = parseFloat(payload.amount).toLocaleString('en-IN');
-  
-  const amtEl = document.getElementById('simAmtText');
-  if (amtEl) amtEl.textContent = `₹${formattedAmt}`;
-  
-  const btnAmtEl = document.getElementById('simPayBtnAmt');
-  if (btnAmtEl) btnAmtEl.textContent = formattedAmt;
-
-  const nameEl = document.getElementById('simNameText');
-  if (nameEl) nameEl.textContent = payload.name || (payload.firstName + ' ' + payload.lastName);
-  
-  const modal = document.getElementById('paySimModal');
-  if (modal) {
-    modal.classList.remove('d-none');
-  }
-}
-
-function switchGwTab(method) {
-  const tabs = ['upi', 'card', 'netbanking'];
-  tabs.forEach(t => {
-    const btn = document.getElementById(`tabBtn${t.charAt(0).toUpperCase() + t.slice(1)}`);
-    const content = document.getElementById(`gwTab${t.charAt(0).toUpperCase() + t.slice(1)}`);
-    if (btn) btn.classList.remove('active');
-    if (content) content.classList.add('d-none');
-  });
-
-  const activeBtn = document.getElementById(`tabBtn${method.charAt(0).toUpperCase() + method.slice(1)}`);
-  const activeContent = document.getElementById(`gwTab${method.charAt(0).toUpperCase() + method.slice(1)}`);
-  if (activeBtn) activeBtn.classList.add('active');
-  if (activeContent) activeContent.classList.remove('d-none');
-}
-
-function selectUpiApp(element, appName) {
-  document.querySelectorAll('.upi-option').forEach(el => el.classList.remove('active'));
-  element.classList.add('active');
-}
-
-function cancelSimulatedPayment() {
-  const modal = document.getElementById('paySimModal');
-  if (modal) modal.classList.add('d-none');
-  if (pendingOrderData && pendingOrderData.onError) {
-    pendingOrderData.onError({ error: 'Payment transaction cancelled by user' });
-  }
-  pendingOrderData = null;
-}
-
-async function confirmSimulatedPayment() {
-  if (!pendingOrderData) return;
-  const payBtn = document.getElementById('btnConfirmGwPay');
-  const origBtnContent = payBtn ? payBtn.innerHTML : '';
-
-  if (payBtn) {
-    payBtn.disabled = true;
-    payBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Authorizing with Razorpay Rail...';
-  }
-
-  // Simulate realistic gateway network processing latency
-  setTimeout(async () => {
-    const modal = document.getElementById('paySimModal');
-    if (modal) modal.classList.add('d-none');
-    if (payBtn) {
-      payBtn.disabled = false;
-      payBtn.innerHTML = origBtnContent;
-    }
-
-    const simPaymentId = 'PAY_RZP_' + Date.now();
-    const simSignature = 'SIG_VERIFIED_' + Date.now();
-
-    const verificationPayload = {
-      ...pendingOrderData,
-      payment_id: simPaymentId,
-      order_id: pendingOrderData.order_id,
-      signature: simSignature
-    };
-
-    await executeEKhumVerification(verificationPayload, pendingOrderData);
-  }, 1200);
-}
-
 // Client Validation Helper
 function validateEKhumForm() {
   const errors = [];
@@ -258,7 +198,7 @@ function validateEKhumForm() {
   return errors;
 }
 
-// 2. Call EKhum.pay() on Submit/Donate button click
+// 2. Call EKhum.pay() on your Submit/Donate button click
 function handleDonateSubmit() {
   const alertBox = document.getElementById('formAlertBox');
   if (alertBox) alertBox.classList.add('d-none');
@@ -288,23 +228,23 @@ function handleDonateSubmit() {
     isMonthly: document.getElementById('is_monthly')?.checked || false, // Set true for Recurring Mandates
     
     // 👤 Full Contact KYC Layer (Upserted into Hope Fund's CRM)
-    title: document.getElementById('donor_title')?.value || "Mr.",
+    title: document.getElementById('donor_title')?.value || "Mr.", // Mr., Mrs., Ms., Dr., etc.
     firstName: document.getElementById('donor_first_name')?.value || "Aarav",
     lastName: document.getElementById('donor_last_name')?.value || "Sharma",
     name: document.getElementById('donor_name')?.value || "Aarav Sharma",
     email: document.getElementById('donor_email')?.value || "aarav.sharma@example.com",
     phone: document.getElementById('donor_phone')?.value || "+919876543210",
     altPhone: document.getElementById('donor_alt_phone')?.value || "",
-    taxId: document.getElementById('donor_pan')?.value || "ABCDE1234F",
-    dob: document.getElementById('donor_dob')?.value || "1988-04-15",
+    taxId: document.getElementById('donor_pan')?.value || "ABCDE1234F", // 10-digit PAN (KYC Uppercased)
+    dob: document.getElementById('donor_dob')?.value || "1988-04-15", // YYYY-MM-DD
     gender: document.getElementById('donor_gender')?.value || "Male",
-    donorType: "Individual",
+    donorType: "Individual", // 'Individual' | 'Corporate' | 'Trust'
     citizenship: "Indian",
     
-    // 📍 Full Address Data Layer
+    // 📍 Full Address Data Layer (PIN code auto-resolves City & State)
     address: document.getElementById('donor_address')?.value || "Flat 402, Lotus Heights, MG Road",
     street_address_2: document.getElementById('donor_address_line_2')?.value || "Near Metro Station",
-    pincode: document.getElementById('donor_pincode')?.value || "400001",
+    pincode: document.getElementById('donor_pincode')?.value || "400001", // 6-digit Indian PIN
     city: document.getElementById('donor_city')?.value || "Mumbai",
     state: document.getElementById('donor_state')?.value || "Maharashtra",
     country: "India",
@@ -319,7 +259,7 @@ function handleDonateSubmit() {
     consentEmail: document.getElementById('consent_email')?.checked ?? true,
     consentWhatsapp: document.getElementById('consent_whatsapp')?.checked ?? true,
     consentSms: document.getElementById('consent_sms')?.checked ?? true,
-    preferredChannel: "both",
+    preferredChannel: "both", // 'email' | 'whatsapp' | 'sms' | 'both'
 
     // 📣 Marketing Attribution & Campaign Telemetry
     utm_source: new URLSearchParams(window.location.search).get('utm_source') || "google_ads",
