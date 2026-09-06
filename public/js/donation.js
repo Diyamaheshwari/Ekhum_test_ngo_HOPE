@@ -41,16 +41,12 @@ if (typeof window.EKhum === 'undefined' || !window.EKhum.pay) {
           return;
         }
 
-        // Step 2: Gateway Execution Engine
-        const isRealRazorpayKey = orderRes.key && 
-          orderRes.key.startsWith('rzp_') && 
-          !orderRes.key.includes('hope_fund') && 
-          !orderRes.key.includes('mock') && 
-          !orderRes.isSimulation;
+        // Step 2: Launch Official Razorpay Payment Gateway Modal
+        const razorpayKey = orderRes.key || 'rzp_test_TYgiRFkvuT45sT';
 
-        if (isRealRazorpayKey && typeof Razorpay !== 'undefined') {
+        if (typeof Razorpay !== 'undefined') {
           const rzpOptions = {
-            key: orderRes.key,
+            key: razorpayKey,
             amount: orderRes.amount,
             currency: payload.currency || 'INR',
             name: 'Hope Fund',
@@ -82,29 +78,32 @@ if (typeof window.EKhum === 'undefined' || !window.EKhum.pay) {
             modal: {
               ondismiss: function () {
                 if (submitBtn) { submitBtn.disabled = false; submitBtn.innerHTML = origText; }
-                if (options.onError) options.onError({ error: 'Payment transaction cancelled by user' });
+                if (options.onError) options.onError({ error: 'Payment transaction cancelled by donor' });
               }
             }
           };
 
           const rzp = new Razorpay(rzpOptions);
           rzp.open();
+        } else if (typeof Cashfree !== 'undefined') {
+          const cashfree = Cashfree({ mode: 'sandbox' });
+          cashfree.checkout({
+            paymentSessionId: orderRes.paymentSessionId || orderRes.orderId,
+            redirectTarget: '_modal'
+          }).then(async function (cfResult) {
+            if (cfResult.error) {
+              if (options.onError) options.onError({ error: cfResult.error.message });
+            } else {
+              await executeEKhumVerification({
+                ...payload,
+                payment_id: 'PAY_CF_' + Date.now(),
+                order_id: orderRes.orderId,
+                signature: 'SIG_CF_VERIFIED'
+              }, options);
+            }
+          });
         } else {
-          // Sandbox / Simulated Gateway Rail Execution
-          if (submitBtn) {
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Authorizing with EKhum Gateway Rail...';
-          }
-          
-          setTimeout(async () => {
-            const verificationPayload = {
-              ...payload,
-              payment_id: 'PAY_RZP_' + Date.now(),
-              order_id: orderRes.orderId,
-              signature: 'SIG_VERIFIED_' + Date.now()
-            };
-            await executeEKhumVerification(verificationPayload, options);
-          }, 800);
+          throw new Error('No Payment Gateway SDK loaded on page.');
         }
       } catch (err) {
         console.error('Payment Initialization Error:', err);
