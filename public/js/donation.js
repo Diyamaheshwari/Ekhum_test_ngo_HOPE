@@ -15,11 +15,11 @@ if (typeof window.EKhum === 'undefined') {
       const origText = submitBtn ? submitBtn.innerHTML : '';
       if (submitBtn) {
         submitBtn.disabled = true;
-        submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Triggering Payment Gateway...';
+        submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Connecting EKhum Gateway...';
       }
 
       try {
-        // Step 1: Create Order via Backend API
+        // Step 1: Create Order via Backend API (Zero Secret Key Exposure)
         const res = await fetch('/api/donations/create-order', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -43,7 +43,7 @@ if (typeof window.EKhum === 'undefined') {
 
         const isRealKey = orderRes.key && !orderRes.key.includes('1DP5mmOlF5G5ag') && !orderRes.key.includes('mock') && !orderRes.isSimulation;
 
-        // Step 2: Gateway Selection
+        // Step 2: Gateway Trigger
         if (isRealKey && typeof Razorpay !== 'undefined') {
           const rzpOptions = {
             key: orderRes.key,
@@ -81,7 +81,7 @@ if (typeof window.EKhum === 'undefined') {
           const rzp = new Razorpay(rzpOptions);
           rzp.open();
         } else {
-          // Trigger EKhum Gateway Interactive Modal (Primary: Razorpay Rail | Failover: Cashfree Rail)
+          // Open Interactive EKhum Payment Gateway Checkout Window (Razorpay / Cashfree Rails)
           openEKhumGatewayModal(payload, orderRes, options);
         }
       } catch (err) {
@@ -133,11 +133,16 @@ document.addEventListener('DOMContentLoaded', () => {
   if (lastNameInput) lastNameInput.addEventListener('input', syncFullName);
 });
 
-// EKhum Gateway Interactive Popup Modal
+// EKhum Interactive Payment Gateway Checkout Window Functions
 function openEKhumGatewayModal(payload, orderRes, options) {
-  const amtEl = document.getElementById('simAmtText');
-  if (amtEl) amtEl.textContent = `₹${parseFloat(payload.amount).toLocaleString('en-IN')}`;
+  const formattedAmt = parseFloat(payload.amount).toLocaleString('en-IN');
   
+  const amtEl = document.getElementById('simAmtText');
+  if (amtEl) amtEl.textContent = `₹${formattedAmt}`;
+  
+  const btnAmtEl = document.getElementById('simPayBtnAmt');
+  if (btnAmtEl) btnAmtEl.textContent = formattedAmt;
+
   const nameEl = document.getElementById('simNameText');
   if (nameEl) nameEl.textContent = payload.name || (payload.firstName + ' ' + payload.lastName);
   
@@ -145,6 +150,26 @@ function openEKhumGatewayModal(payload, orderRes, options) {
   if (modal) {
     modal.classList.remove('d-none');
   }
+}
+
+function switchGwTab(method) {
+  const tabs = ['upi', 'card', 'netbanking'];
+  tabs.forEach(t => {
+    const btn = document.getElementById(`tabBtn${t.charAt(0).toUpperCase() + t.slice(1)}`);
+    const content = document.getElementById(`gwTab${t.charAt(0).toUpperCase() + t.slice(1)}`);
+    if (btn) btn.classList.remove('active');
+    if (content) content.classList.add('d-none');
+  });
+
+  const activeBtn = document.getElementById(`tabBtn${method.charAt(0).toUpperCase() + method.slice(1)}`);
+  const activeContent = document.getElementById(`gwTab${method.charAt(0).toUpperCase() + method.slice(1)}`);
+  if (activeBtn) activeBtn.classList.add('active');
+  if (activeContent) activeContent.classList.remove('d-none');
+}
+
+function selectUpiApp(element, appName) {
+  document.querySelectorAll('.upi-option').forEach(el => el.classList.remove('active'));
+  element.classList.add('active');
 }
 
 function cancelSimulatedPayment() {
@@ -158,20 +183,35 @@ function cancelSimulatedPayment() {
 
 async function confirmSimulatedPayment() {
   if (!pendingOrderData) return;
-  const modal = document.getElementById('paySimModal');
-  if (modal) modal.classList.add('d-none');
+  const payBtn = document.getElementById('btnConfirmGwPay');
+  const origBtnContent = payBtn ? payBtn.innerHTML : '';
 
-  const simPaymentId = 'PAY_RZP_' + Date.now();
-  const simSignature = 'SIG_VERIFIED_' + Date.now();
+  if (payBtn) {
+    payBtn.disabled = true;
+    payBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Authorizing with Razorpay Rail...';
+  }
 
-  const verificationPayload = {
-    ...pendingOrderData,
-    payment_id: simPaymentId,
-    order_id: pendingOrderData.order_id,
-    signature: simSignature
-  };
+  // Simulate realistic gateway network processing latency
+  setTimeout(async () => {
+    const modal = document.getElementById('paySimModal');
+    if (modal) modal.classList.add('d-none');
+    if (payBtn) {
+      payBtn.disabled = false;
+      payBtn.innerHTML = origBtnContent;
+    }
 
-  await executeEKhumVerification(verificationPayload, pendingOrderData);
+    const simPaymentId = 'PAY_RZP_' + Date.now();
+    const simSignature = 'SIG_VERIFIED_' + Date.now();
+
+    const verificationPayload = {
+      ...pendingOrderData,
+      payment_id: simPaymentId,
+      order_id: pendingOrderData.order_id,
+      signature: simSignature
+    };
+
+    await executeEKhumVerification(verificationPayload, pendingOrderData);
+  }, 1200);
 }
 
 // Client Validation Helper
@@ -218,7 +258,7 @@ function validateEKhumForm() {
   return errors;
 }
 
-// Call EKhum.pay() on Submit/Donate button click
+// 2. Call EKhum.pay() on Submit/Donate button click
 function handleDonateSubmit() {
   const alertBox = document.getElementById('formAlertBox');
   if (alertBox) alertBox.classList.add('d-none');
