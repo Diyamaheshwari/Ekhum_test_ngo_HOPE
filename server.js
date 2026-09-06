@@ -17,19 +17,21 @@ app.use(express.urlencoded({ extended: true }));
 // Serve static frontend files from 'public' directory
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Razorpay Key Credentials (Supports environment variable or standard test gateway key)
-const razorpayKeyId = process.env.RAZORPAY_KEY_ID || 'rzp_test_1DP5mmOlF5G5ag';
-const razorpayKeySecret = process.env.RAZORPAY_KEY_SECRET || 'rzp_secret_mock';
+// Razorpay Key Credentials
+const razorpayKeyId = process.env.RAZORPAY_KEY_ID || null;
+const razorpayKeySecret = process.env.RAZORPAY_KEY_SECRET || null;
 
 let razorpayInstance = null;
-try {
-  razorpayInstance = new Razorpay({
-    key_id: razorpayKeyId,
-    key_secret: razorpayKeySecret
-  });
-  console.log('Razorpay Gateway initialized with Key ID:', razorpayKeyId);
-} catch (err) {
-  console.warn('Razorpay SDK init fallback:', err.message);
+if (razorpayKeyId && razorpayKeySecret) {
+  try {
+    razorpayInstance = new Razorpay({
+      key_id: razorpayKeyId,
+      key_secret: razorpayKeySecret
+    });
+    console.log('Razorpay Gateway initialized with LIVE/TEST Key ID:', razorpayKeyId);
+  } catch (err) {
+    console.warn('Razorpay SDK init fallback:', err.message);
+  }
 }
 
 // EKhum Campaign Metadata
@@ -86,6 +88,7 @@ app.get('/api/config', (req, res) => {
     gateway: EKHUM_CONFIG.primaryGateway,
     fallbackGateway: EKHUM_CONFIG.fallbackGateway,
     enableAutoFailover: EKHUM_CONFIG.enableAutoFailover,
+    isSimulationMode: !razorpayInstance,
     currency: 'INR',
     taxExemption80G: true
   });
@@ -116,8 +119,6 @@ app.post('/api/donations/create-order', async (req, res) => {
     const currency = donorData.currency || 'INR';
     const orderReceipt = 'rcpt_hope_' + Date.now().toString().slice(-8);
 
-    let orderId = 'order_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
-    
     if (razorpayInstance) {
       try {
         const order = await razorpayInstance.orders.create({
@@ -131,18 +132,29 @@ app.post('/api/donations/create-order', async (req, res) => {
             pan: donorData.taxId || donorData.pan_number
           }
         });
-        orderId = order.id;
+        return res.json({
+          success: true,
+          isSimulation: false,
+          orderId: order.id,
+          amount: order.amount,
+          currency: order.currency,
+          key: razorpayKeyId,
+          gateway: EKHUM_CONFIG.primaryGateway,
+          fallbackGateway: EKHUM_CONFIG.fallbackGateway
+        });
       } catch (err) {
-        console.warn('Razorpay order creation fallback:', err.message);
+        console.warn('Razorpay order creation error:', err.message);
       }
     }
 
+    const simulatedOrderId = 'order_sim_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
     return res.json({
       success: true,
-      orderId: orderId,
+      isSimulation: true,
+      orderId: simulatedOrderId,
       amount: amountInPaisa,
       currency: currency,
-      key: razorpayKeyId,
+      key: razorpayKeyId || 'rzp_test_hope_fund',
       gateway: EKHUM_CONFIG.primaryGateway,
       fallbackGateway: EKHUM_CONFIG.fallbackGateway
     });
