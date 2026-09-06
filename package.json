@@ -1,0 +1,30 @@
+{
+  "name": "for-the-hope-ngo",
+  "version": "1.0.0",
+  "description": "FOR THE HOPE NGO - Donation Platform with payment gateway, database layer, 80G tax receipt, and Render deployment",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "build": "npm install"
+  },
+  "keywords": [
+    "ngo",
+    "donation",
+    "hope",
+    "charity",
+    "razorpay",
+    "render",
+    "sqlite"
+  ],
+  "author": "FOR THE HOPE Foundation",
+  "license": "MIT",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "razorpay": "^2.9.4",
+    "sqlite3": "^5.1.7",
+    "uuid": "^9.0.1"
+  }
+}
